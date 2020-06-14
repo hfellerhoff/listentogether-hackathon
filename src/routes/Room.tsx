@@ -282,6 +282,7 @@ const Room = ({
                 size='lg'
                 leftIcon={() => <FaSpotify />}
                 mt={8}
+                isDisabled={isOwner}
               >
                 <Text ml={3}>
                   {isListening ? 'Stop Listening' : 'Start Listening'}
