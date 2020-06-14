@@ -1,44 +1,34 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Listen Together
+Grab some friends, connect your Spotify account, and listen to music in sync with each other.
 
-## Available Scripts
+### Inspiration
+I love making playlists and talking about music with my friends, and so I decided to expand upon that by allowing friends to hop in a room and all listen to music in sync with one another.
 
-In the project directory, you can run:
+### What it does
+Listen Together allows groups of people to listen to music in sync with one another via Spotify. When the group owner makes any change in the song they are listening to, anyone who is listening and in the group with receive those same changes. It allows for truly synced music listening, which stands in contrast to Spotify's built-in feature of playing a song that a friend is listening to.
 
-### `yarn start`
+### How I built it
+Listen Together is built with React on the frontend and Node.js / Express running through Firebase functions on the backend. This was used purely to authenticate users with Spotify. In addition, I leveraged Firebase's realtime database to accomplish the live music syncing.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Challenges I ran into
+Data fetching and calling the Spotify API at the right times was the source of many of my bugs, as the nature of the application means that the client has to stay in constant sync with both a user's Spotify application on their phone/computer and the Firebase realtime database.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### Accomplishments that I'm proud of
+Considering I worked alone and tackled an API I had never looked at before, I am quite proud of what I was able to accomplish. While I've used firebase in the past, I haven't worked on an application that was quite this realtime, and as a result there were many roadblocks I hadn't seen before that I was able to overcome.
 
-### `yarn test`
+### What I learned
+I learned a lot about the Spotify API, as well as dipping my toes in dealing with OAuth for authentication. I hadn't used either of those things before.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### What's next for Listen Together
+I was only able to implement public room sharing during the Hackathon, but I'd love to add functionality for users to send a private room link to only their friends. Possible integrations with other services could be neat as well, although I'm not positive about the feasibility of that.
 
-### `yarn build`
+### Built With
+- chakra-ui
+- firebase
+- javascript
+- react
+- spotify
+- typescript
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Try it out
+listen-together-hf.web.app
