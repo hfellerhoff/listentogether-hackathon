@@ -109,7 +109,11 @@ const Room = ({
           ...trackDocument.users,
           [user.id]: {
             name: user.display_name ? user.display_name : user.email,
-            imageUrl: user.images ? user.images[0].url : '',
+            imageUrl: user.images
+              ? user.images[0]
+                ? user.images[0].url
+                : ''
+              : '',
             owner: false,
           },
         };
@@ -285,7 +289,11 @@ const Room = ({
                 isDisabled={isOwner}
               >
                 <Text ml={3}>
-                  {isListening ? 'Stop Listening' : 'Start Listening'}
+                  {isOwner
+                    ? 'Already Listening'
+                    : isListening
+                    ? 'Stop Listening'
+                    : 'Start Listening'}
                 </Text>
               </Button>
             </>
