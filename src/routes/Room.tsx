@@ -14,7 +14,7 @@ import {
   Alert,
 } from '@chakra-ui/core';
 import { TrackDocument } from '../firebase/createRoom';
-import RoomSongDisplay from '../components/RoomListSongDisplay';
+import RoomSongDisplay from '../components/RoomSongDisplay';
 import { FaSpotify, FaUser } from 'react-icons/fa';
 import { SongInformation } from '../hooks/usePlaybackMonitor';
 import updateRoom from '../firebase/updateRoom';

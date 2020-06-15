@@ -5,7 +5,7 @@ import { Box, Spinner, Text, Button, Heading, Stack } from '@chakra-ui/core';
 import SpotifyWebApi from 'spotify-web-api-js';
 import { Link } from 'react-router-dom';
 import { TrackDocument } from '../firebase/createRoom';
-import RoomSongDisplay from '../components/RoomListSongDisplay';
+import RoomSongDisplay from '../components/RoomSongDisplay';
 
 interface Props {
   accessToken: string;
