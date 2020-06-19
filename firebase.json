@@ -17,6 +17,10 @@
         "destination": "/index.html"
       },
       {
+        "source": "/",
+        "function": "app"
+      },
+      {
         "source": "/login",
         "function": "app"
       },

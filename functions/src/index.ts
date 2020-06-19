@@ -1,16 +1,22 @@
 import * as functions from 'firebase-functions';
-import * as express from 'express'; // Express web server framework
-import * as request from 'request'; // "Request" library
+import * as express from 'express';
+import * as request from 'request';
 import * as cors from 'cors';
 import * as querystring from 'querystring';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import generateRandomString from './util/generateRandomString';
 dotenv.config();
-// https://listen-together-hf.web.app
-const redirect_uri =
-  'https://us-central1-listen-together-hf.cloudfunctions.net/app/callback'; // Your redirect uri
-// 'http://localhost:5001/listen-together-hf/us-central1/app/callback'; // Your redirect uri
+
+const isDevelopment = true; // Incredibly temporary and hacky
+
+const redirect_uri = isDevelopment
+  ? 'http://localhost:5001/listen-together-hf/us-central1/app/callback'
+  : 'https://us-central1-listen-together-hf.cloudfunctions.net/app/callback';
+const callbackURI = isDevelopment
+  ? 'http://localhost:3000/#'
+  : 'https://listen-together-hf.web.app/#';
+
 const stateKey = 'spotify_auth_state';
 const scope =
   'user-read-private user-read-email user-read-playback-state user-modify-playback-state streaming';
@@ -50,7 +56,7 @@ app.get('/callback', function (req, res) {
 
   if (state === null || state !== storedState) {
     res.redirect(
-      '/#' +
+      callbackURI +
         querystring.stringify({
           error: 'state_mismatch',
         })
@@ -89,9 +95,8 @@ app.get('/callback', function (req, res) {
         // });
 
         // we can also pass the token to the browser to make requests from there
-        //'http://localhost:3000/#'
         res.redirect(
-          'https://listen-together-hf.web.app/#' +
+          callbackURI +
             querystring.stringify({
               access_token: access_token,
               refresh_token: refresh_token,
@@ -99,7 +104,7 @@ app.get('/callback', function (req, res) {
         );
       } else {
         res.redirect(
-          '/#' +
+          callbackURI +
             querystring.stringify({
               error: 'invalid_token',
             })

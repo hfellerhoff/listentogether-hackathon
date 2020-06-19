@@ -7,11 +7,11 @@ import {
   RadioButtonGroup,
 } from '@chakra-ui/core';
 import SongDisplay from '../components/SongDisplay';
-import { SongInformation } from '../hooks/usePlaybackMonitor';
 import RadioOption from '../components/RadioOption';
+import { PlaybackInformation } from '../state/playbackInformation';
 
 interface Props {
-  songInformation: SongInformation;
+  songInformation: PlaybackInformation;
   createRoom: () => void;
 }
 

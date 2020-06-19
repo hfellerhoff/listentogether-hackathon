@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useList } from 'react-firebase-hooks/database';
 import firebase from '../firebase';
 import { Box, Spinner, Text, Button, Heading, Stack } from '@chakra-ui/core';
-import SpotifyWebApi from 'spotify-web-api-js';
 import { Link } from 'react-router-dom';
-import { TrackDocument } from '../firebase/createRoom';
 import RoomSongDisplay from '../components/RoomSongDisplay';
+import { useRecoilValue } from 'recoil';
+import { accessTokenState, spotifyApiState } from '../state';
+import { RoomInformation } from '../state/roomInformation';
 
-interface Props {
-  accessToken: string;
-  spotifyApi: SpotifyWebApi.SpotifyWebApiJs;
-}
+interface Props {}
 
-const Rooms = ({ accessToken, spotifyApi }: Props) => {
+export const Rooms = () => {
+  const accessToken = useRecoilValue(accessTokenState);
+  const spotifyApi = useRecoilValue(spotifyApiState);
   const [snapshots, loading, error] = useList(firebase.database().ref('rooms'));
-  const [trackDocuments, setTrackDocuments] = useState<TrackDocument[]>([]);
+  const [rooms, setRooms] = useState<RoomInformation[]>([]);
   const [tracks, setTracks] = useState<null | SpotifyApi.TrackObjectFull[]>(
     null
   );
@@ -22,17 +22,15 @@ const Rooms = ({ accessToken, spotifyApi }: Props) => {
   useEffect(() => {
     const fetchTracks = async () => {
       if (!snapshots) return;
-      const trackDocuments = snapshots.map((snapshot) => snapshot.val());
-      setTrackDocuments(trackDocuments);
+      const roomDocuments = snapshots.map((snapshot) => snapshot.val());
+      setRooms(roomDocuments);
 
-      if (trackDocuments.length === 0) setTracks([]);
+      if (roomDocuments.length === 0) setTracks([]);
 
-      const trackDocumentIDs = trackDocuments.map(
-        (document) => document.song.id
-      );
+      const roomDocumentIDs = roomDocuments.map((room) => room.song.id);
 
       try {
-        const response = await spotifyApi.getTracks(trackDocumentIDs);
+        const response = await spotifyApi.getTracks(roomDocumentIDs);
         setTracks(response.tracks);
       } catch (error) {
         console.error(error);
@@ -73,11 +71,7 @@ const Rooms = ({ accessToken, spotifyApi }: Props) => {
       ) : (
         <>
           {tracks.map((track, index) => (
-            <RoomSongDisplay
-              key={index}
-              track={track}
-              document={trackDocuments[index]}
-            />
+            <RoomSongDisplay key={index} track={track} room={rooms[index]} />
           ))}
           <Text mt={6}>Don't see anything interesting?</Text>
           <Link to='/choose-song'>

@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  accessTokenState,
+  playbackInformationState,
+  spotifyApiState,
+} from '../state';
 
-export type SongInformation = SpotifyApi.CurrentPlaybackResponse | null;
-
-const usePlaybackMonitor = (
-  // @ts-ignore
-  spotifyAPI: SpotifyWebApi.SpotifyWebApiJs,
-  access_token: string | null,
-  shouldStartCheckingPlayback: boolean
-) => {
-  const [songInformation, setSongInformation] = useState<SongInformation>(null);
+const usePlaybackMonitor = (shouldStartCheckingPlayback: boolean) => {
+  const spotifyAPI = useRecoilValue(spotifyApiState);
+  const accessToken = useRecoilValue(accessTokenState);
+  const [songInformation, setSongInformation] = useRecoilState(
+    playbackInformationState
+  );
 
   const [fetchInterval, setFetchInterval] = useState<NodeJS.Timeout | null>(
     null
@@ -18,8 +21,10 @@ const usePlaybackMonitor = (
     const getMyCurrentPlaybackState = async () => {
       console.log('Checking playback state...');
       try {
-        spotifyAPI.setAccessToken(access_token);
+        spotifyAPI.setAccessToken(accessToken);
         const response = await spotifyAPI.getMyCurrentPlaybackState();
+        console.log(response);
+
         setSongInformation(response);
         return response;
       } catch (error) {
@@ -28,8 +33,7 @@ const usePlaybackMonitor = (
     };
 
     const startCheckingPlayback = () => {
-      if (access_token) {
-        console.log('Starting checking playback...');
+      if (accessToken) {
         getMyCurrentPlaybackState();
         setFetchInterval(setInterval(getMyCurrentPlaybackState, 500));
       }
@@ -40,7 +44,13 @@ const usePlaybackMonitor = (
     return () => {
       if (fetchInterval) clearInterval(fetchInterval);
     };
-  }, [access_token, fetchInterval, shouldStartCheckingPlayback, spotifyAPI]);
+  }, [
+    accessToken,
+    fetchInterval,
+    setSongInformation,
+    shouldStartCheckingPlayback,
+    spotifyAPI,
+  ]);
 
   return songInformation;
 };

@@ -11,10 +11,10 @@ import {
   SliderThumb,
   Spinner,
 } from '@chakra-ui/core';
-import { SongInformation } from '../hooks/usePlaybackMonitor';
+import { PlaybackInformation } from '../state/playbackInformation';
 
 interface Props {
-  songInformation: SongInformation;
+  songInformation: PlaybackInformation;
 }
 
 const SongDisplay = ({ songInformation }: Props) => {

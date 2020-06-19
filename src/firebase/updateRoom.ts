@@ -1,10 +1,10 @@
 import firebase from '.';
-import { SongInformation } from '../hooks/usePlaybackMonitor';
-import { TrackDocument } from './createRoom';
+import { PlaybackInformation } from '../state/playbackInformation';
+import { RoomInformation } from '../state/roomInformation';
 
 const updateRoom = async (
-  room: TrackDocument,
-  songInformation: SongInformation
+  room: RoomInformation,
+  songInformation: PlaybackInformation
 ) => {
   if (!songInformation) return;
 
@@ -22,6 +22,7 @@ const updateRoom = async (
               ? songInformation.progress_ms
               : 0,
             uri: songInformation.item.uri,
+            isPlaying: songInformation.is_playing,
           },
         });
       console.log('Successfully updated room.');

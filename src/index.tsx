@@ -9,15 +9,18 @@ import {
   CSSReset,
 } from '@chakra-ui/core';
 import { BrowserRouter } from 'react-router-dom';
+import { RecoilRoot } from 'recoil';
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <ColorModeProvider value='dark'>
+      <ColorModeProvider>
         <CSSReset />
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <RecoilRoot>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </RecoilRoot>
       </ColorModeProvider>
     </ThemeProvider>
   </React.StrictMode>,

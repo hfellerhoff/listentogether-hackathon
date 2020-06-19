@@ -1,57 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
 import Layout from './components/layout';
 import RepeatedBackground from './components/RepeatedBackground';
 import getHashParams from './util/getHashParams';
 import ToggleColorMode from './components/ToggleColorMode';
 import usePlaybackMonitor from './hooks/usePlaybackMonitor';
-import { LoginToSpotify, SearchOrShare, ChooseSong, ShareSong } from './routes';
+import {
+  LoginToSpotify,
+  SearchOrShare,
+  ChooseSong,
+  ShareSong,
+  Room,
+  Rooms,
+} from './routes';
 import createRoom from './firebase/createRoom';
-import Spotify from 'spotify-web-api-js';
-import Rooms from './routes/Rooms';
-import Room from './routes/Room';
 import RouteToHome from './components/RouteToHome';
-const spotifyAPI = new Spotify();
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { spotifyApiState, accessTokenState } from './state';
+import useUserMonitor from './hooks/useUserMonitor';
 
 const App = () => {
-  const { access_token } = getHashParams() as { access_token: string };
+  const params = getHashParams() as { access_token: string };
   const history = useHistory();
-  const [savedAccessToken, setSavedAccessToken] = useState<string | null>(null);
+
   const [isCheckingPlayback, setIsCheckingPlayback] = useState(false);
-  const songInformation = usePlaybackMonitor(
-    spotifyAPI,
-    savedAccessToken,
-    isCheckingPlayback
-  );
-  if (access_token && !savedAccessToken) setSavedAccessToken(access_token);
-  const [
-    user,
-    setUser,
-  ] = useState<SpotifyApi.CurrentUsersProfileResponse | null>(null);
 
-  useEffect(() => {
-    const updateUser = async () => {
-      if (!savedAccessToken) return;
-      try {
-        const response = await spotifyAPI.getMe({
-          access_token: savedAccessToken,
-        });
-        setUser(response);
-      } catch (error) {
-        console.log(savedAccessToken);
-        console.error('User fetch error:');
-        console.error(error);
-      }
-    };
+  const spotifyAPI = useRecoilValue(spotifyApiState);
+  const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
 
-    if (savedAccessToken && !user) updateUser();
-  }, [savedAccessToken, setUser, user]);
+  const songInformation = usePlaybackMonitor(isCheckingPlayback);
+  useUserMonitor();
+
+  if (params.access_token && !accessToken) setAccessToken(params.access_token);
 
   const handleCreateRoom = async () => {
-    if (songInformation && savedAccessToken) {
+    if (songInformation && accessToken) {
       const id = await createRoom(
         spotifyAPI,
-        savedAccessToken,
+        accessToken,
         songInformation as SpotifyApi.CurrentPlaybackResponse
       );
       history.push(`/rooms/${id}`);
@@ -65,7 +51,7 @@ const App = () => {
       <RouteToHome />
       <Switch>
         <Route exact path='/'>
-          {savedAccessToken ? (
+          {accessToken ? (
             <Redirect to='/search-or-share' />
           ) : (
             <Layout title='Home' centered boxed maxW={550}>
@@ -73,7 +59,7 @@ const App = () => {
             </Layout>
           )}
         </Route>
-        {savedAccessToken ? (
+        {accessToken ? (
           <Switch>
             <Route path='/search-or-share'>
               <Layout title='Search or Share' centered boxed maxW={550}>
@@ -83,10 +69,6 @@ const App = () => {
             <Route path='/rooms/:roomID'>
               <Layout title='Listening Room' centered boxed maxW={550}>
                 <Room
-                  accessToken={savedAccessToken}
-                  spotifyApi={spotifyAPI}
-                  user={user}
-                  songInformation={songInformation}
                   checkingPlayback={isCheckingPlayback}
                   setShouldCheckPlayback={setIsCheckingPlayback}
                 />
@@ -94,7 +76,7 @@ const App = () => {
             </Route>
             <Route path='/rooms'>
               <Layout title='Rooms' centered boxed maxW={700}>
-                <Rooms accessToken={savedAccessToken} spotifyApi={spotifyAPI} />
+                <Rooms />
               </Layout>
             </Route>
             <Route path='/choose-song'>

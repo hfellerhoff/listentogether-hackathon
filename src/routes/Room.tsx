@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import SpotifyWebApi from 'spotify-web-api-js';
 import firebase from '../firebase';
 import { useObject } from 'react-firebase-hooks/database';
 import { useParams, Link } from 'react-router-dom';
@@ -13,52 +12,51 @@ import {
   Flex,
   Alert,
 } from '@chakra-ui/core';
-import { TrackDocument } from '../firebase/createRoom';
 import RoomSongDisplay from '../components/RoomSongDisplay';
 import { FaSpotify, FaUser } from 'react-icons/fa';
-import { SongInformation } from '../hooks/usePlaybackMonitor';
 import updateRoom from '../firebase/updateRoom';
+import { useRecoilValue, useRecoilState } from 'recoil';
+import {
+  accessTokenState,
+  spotifyApiState,
+  userInformationState,
+  playbackInformationState,
+} from '../state';
+import addUserToRoom from '../firebase/addUserToRoom';
+import removeUserFromRoom from '../firebase/removeUserFromRoom';
+import {
+  roomInformationState,
+  RoomInformation,
+} from '../state/roomInformation';
+import SongControl from '../components/SongControl';
 
 interface Props {
-  accessToken: string;
-  spotifyApi: SpotifyWebApi.SpotifyWebApiJs;
-  user: SpotifyApi.CurrentUsersProfileResponse | null;
-  songInformation: SongInformation;
   checkingPlayback: boolean;
   setShouldCheckPlayback: (value: boolean) => void;
 }
 
-const Room = ({
-  accessToken,
-  spotifyApi,
-  user,
-  songInformation,
-  checkingPlayback,
-  setShouldCheckPlayback,
-}: Props) => {
+export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
   const { roomID } = useParams();
-  const [value, loading, error] = useObject(
-    firebase.database().ref('rooms/' + roomID)
-  );
-  const [trackDocument, setTrackDocument] = useState<
-    TrackDocument | undefined
-  >();
+  const accessToken = useRecoilValue(accessTokenState);
+  const spotifyApi = useRecoilValue(spotifyApiState);
+  const user = useRecoilValue(userInformationState);
+  const [room, setRoom] = useRecoilState(roomInformationState);
+  const playbackInformation = useRecoilValue(playbackInformationState);
   const [track, setTrack] = useState<
     SpotifyApi.SingleTrackResponse | undefined
   >();
 
+  const [value, loading, error] = useObject(
+    firebase.database().ref('rooms/' + roomID)
+  );
+
   const [lastTrackFetch, setLastTrackFetch] = useState(0);
 
-  const [isListening, setIsListening] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-  const [stopSearching, setStopSearching] = useState(false);
-
+  const [isListening, setIsListening] = useState(false);
+  const [shouldBeListening, setShouldBeListening] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-
-  const [
-    currentlyPlayingTrackDocument,
-    setCurrentlyPlayingTrackDocument,
-  ] = useState<TrackDocument | undefined>();
+  const [stopSearching, setStopSearching] = useState(false);
 
   useEffect(() => {
     spotifyApi.setAccessToken(accessToken);
@@ -70,12 +68,12 @@ const Room = ({
     const fetchTrack = async () => {
       if (!value) return;
 
-      const document = (await value.val()) as TrackDocument;
+      const document = (await value.val()) as RoomInformation;
       if (!document) {
         setIsDeleted(true);
         return;
       }
-      setTrackDocument(document);
+      setRoom(document);
       const trackDocumentID = document.song.id;
       console.log(trackDocumentID);
 
@@ -92,66 +90,40 @@ const Room = ({
       fetchTrack();
       setLastTrackFetch(Date.now());
     }
-  }, [value, loading, error, spotifyApi, lastTrackFetch, stopSearching]);
+  }, [
+    value,
+    loading,
+    error,
+    spotifyApi,
+    lastTrackFetch,
+    stopSearching,
+    setRoom,
+  ]);
 
   useEffect(() => {
     if (isOwner && !stopSearching) {
       if (!checkingPlayback) {
         setShouldCheckPlayback(true);
       }
-      if (songInformation && trackDocument) {
-        updateRoom(trackDocument, songInformation);
+      if (playbackInformation && room) {
+        updateRoom(room, playbackInformation);
       }
     }
-    if (!isOwner && isListening && trackDocument) {
-      if (!currentlyPlayingTrackDocument && user) {
-        const users: TrackDocument['users'] = {
-          ...trackDocument.users,
-          [user.id]: {
-            name: user.display_name ? user.display_name : user.email,
-            imageUrl: user.images
-              ? user.images[0]
-                ? user.images[0].url
-                : ''
-              : '',
-            owner: false,
-          },
-        };
-
-        firebase
-          .database()
-          .ref('rooms/' + roomID)
-          .update({
-            users,
-          });
+    if (!isOwner && shouldBeListening && room) {
+      if (user && !isListening) {
+        addUserToRoom(room, user);
       }
-      if (
-        !currentlyPlayingTrackDocument ||
-        currentlyPlayingTrackDocument.song.id !== trackDocument.id
-      ) {
+      if (isListening) {
         spotifyApi.play({
-          uris: [trackDocument.song.uri],
-          position_ms:
-            Date.now() -
-            trackDocument.song.addedAt +
-            trackDocument.song.progress,
+          uris: [room.song.uri],
+          position_ms: Date.now() - room.song.addedAt + room.song.progress,
         });
-        setCurrentlyPlayingTrackDocument(trackDocument);
       }
-    } else if (!isOwner && !isListening && trackDocument && user) {
-      // if (checkingPlayback) setShouldCheckPlayback(false);
+    } else if (!isOwner && !shouldBeListening && isListening && room && user) {
       try {
         spotifyApi.pause();
-        const users: TrackDocument['users'] = { ...trackDocument.users };
-        delete users[user.id];
-
-        firebase
-          .database()
-          .ref('rooms/' + roomID)
-          .update({
-            users,
-          });
-        setCurrentlyPlayingTrackDocument(undefined);
+        removeUserFromRoom(room, user);
+        setIsListening(false);
       } catch (error) {
         console.error(error);
       }
@@ -159,22 +131,22 @@ const Room = ({
   }, [
     accessToken,
     checkingPlayback,
-    currentlyPlayingTrackDocument,
     isListening,
     isOwner,
+    playbackInformation,
+    room,
     roomID,
     setShouldCheckPlayback,
-    songInformation,
+    shouldBeListening,
     spotifyApi,
     stopSearching,
-    trackDocument,
     user,
   ]);
 
   useEffect(() => {
-    if (trackDocument && track && user) {
-      if (user.id in trackDocument?.users) {
-        const owner = trackDocument.users[user.id].owner;
+    if (room && track && user) {
+      if (user.id in room?.users) {
+        const owner = room.users[user.id].owner;
         if (owner !== isOwner) {
           if (!checkingPlayback) setShouldCheckPlayback(true);
           spotifyApi.play();
@@ -183,13 +155,13 @@ const Room = ({
       }
     }
   }, [
-    trackDocument,
     track,
     user,
     isOwner,
     checkingPlayback,
     setShouldCheckPlayback,
     spotifyApi,
+    room,
   ]);
 
   const buttonColor = isOwner ? {} : { color: '#9EA5B3' };
@@ -203,17 +175,9 @@ const Room = ({
         .ref('rooms/' + roomID)
         .remove();
     else {
-      if (user && trackDocument) {
+      if (user && room) {
         spotifyApi.pause();
-        const users: TrackDocument['users'] = { ...trackDocument.users };
-        delete users[user.id];
-
-        firebase
-          .database()
-          .ref('rooms/' + roomID)
-          .update({
-            users,
-          });
+        removeUserFromRoom(room, user);
       }
     }
   };
@@ -224,7 +188,7 @@ const Room = ({
         <Button
           variant={isOwner ? 'solid' : 'link'}
           leftIcon='arrow-back'
-          isDisabled={!trackDocument || !track}
+          isDisabled={!room || !track}
           onClick={handleLeaveRoom}
           {...buttonColor}
           {...variantColor}
@@ -232,9 +196,10 @@ const Room = ({
           {isOwner ? 'Destroy Room' : 'Leave Room'}
         </Button>
       </Link>
-      {trackDocument && track ? (
+      {room && track ? (
         <>
-          <RoomSongDisplay track={track} document={trackDocument} />
+          <RoomSongDisplay track={track} room={room} />
+          {isOwner ? <SongControl isPlaying={room.song.isPlaying} /> : <></>}
           <Heading size='md' mt={8} textAlign='left'>
             Currently Listening
           </Heading>
@@ -250,7 +215,7 @@ const Room = ({
           ) : (
             <>
               <Box mt={4}>
-                {Object.values(trackDocument.users).map((user, index) => (
+                {Object.values(room.users).map((user, index) => (
                   <Flex key={index} mt={2}>
                     {user.imageUrl ? (
                       <Image
@@ -279,7 +244,7 @@ const Room = ({
               </Box>
               <Button
                 onClick={() => {
-                  setIsListening(!isListening);
+                  setShouldBeListening((value) => !value);
                 }}
                 variant='solid'
                 variantColor='green'
@@ -291,7 +256,7 @@ const Room = ({
                 <Text ml={3}>
                   {isOwner
                     ? 'Already Listening'
-                    : isListening
+                    : shouldBeListening
                     ? 'Stop Listening'
                     : 'Start Listening'}
                 </Text>

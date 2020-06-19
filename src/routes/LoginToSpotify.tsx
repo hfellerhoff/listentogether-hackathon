@@ -10,6 +10,11 @@ import { FaSpotify } from 'react-icons/fa';
 
 interface Props {}
 
+const loginLink =
+  !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+    ? 'http://localhost:5001/listen-together-hf/us-central1/app/login'
+    : 'https://us-central1-listen-together-hf.cloudfunctions.net/app/login';
+
 export const LoginToSpotify = (props: Props) => {
   return (
     <Stack spacing={6}>
@@ -18,7 +23,7 @@ export const LoginToSpotify = (props: Props) => {
         Grab some friends, connect your Spotify account, and listen to music in
         sync with each other.
       </Text>
-      <ExternalLink href='https://us-central1-listen-together-hf.cloudfunctions.net/app/login'>
+      <ExternalLink href={loginLink}>
         <Button
           my={4}
           variant='solid'
@@ -41,5 +46,3 @@ export const LoginToSpotify = (props: Props) => {
 };
 
 export default LoginToSpotify;
-
-//http://localhost:5001/listen-together-hf/us-central1/app/login

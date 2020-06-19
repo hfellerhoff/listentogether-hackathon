@@ -25,6 +25,7 @@
     "react-icons": "^3.10.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
+    "recoil": "0.0.8",
     "shortid": "^2.2.15",
     "spotify-web-api-js": "^1.4.0",
     "typescript": "~3.7.2"
@@ -52,5 +53,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/recoil": "0.0.1"
   }
 }

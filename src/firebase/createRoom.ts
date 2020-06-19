@@ -1,26 +1,10 @@
 import firebase from '.';
 import shortid from 'shortid';
-import SpotifyWebApi from 'spotify-web-api-js';
-
-export interface TrackDocument {
-  id: string;
-  song: {
-    addedAt: number;
-    id: string;
-    progress: number;
-    uri: string;
-  };
-  users: {
-    [id: string]: {
-      imageUrl: string;
-      name: string;
-      owner: boolean;
-    };
-  };
-}
+import { RoomInformation } from '../state/roomInformation';
+import { SpotifyAPI } from '../state/spotifyAPI';
 
 const createRoom = async (
-  spotifyAPI: SpotifyWebApi.SpotifyWebApiJs,
+  spotifyAPI: SpotifyAPI,
   accessToken: string,
   songInformation: SpotifyApi.CurrentPlaybackResponse
 ) => {
@@ -29,13 +13,14 @@ const createRoom = async (
   const id = shortid.generate();
 
   if (user && songInformation.item) {
-    const document: TrackDocument = {
+    const document: RoomInformation = {
       id,
       song: {
         id: songInformation.item.id,
         addedAt: Date.now(),
         progress: songInformation.progress_ms ? songInformation.progress_ms : 0,
         uri: songInformation.item.uri,
+        isPlaying: songInformation.is_playing,
       },
       users: {
         [user.id]: {
