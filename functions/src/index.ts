@@ -1,3 +1,15 @@
+/*
+    Brief disclaimer: much of this code is borrowed/inspired from this
+    GitHub library by a Spotify developer here:
+
+    https://github.com/spotify/web-api-auth-examples
+
+    If you have any questions, that would be the best place to check first
+    as they know much more about this than I do. 
+
+    Good luck!
+*/
+
 import * as functions from 'firebase-functions';
 import * as express from 'express';
 import * as request from 'request';
@@ -8,16 +20,25 @@ import * as dotenv from 'dotenv';
 import generateRandomString from './util/generateRandomString';
 dotenv.config();
 
-const isDevelopment = true; // Incredibly temporary and hacky
+// This solution is incredibly temporary and hacky:
+// Firebase doesn't support process.env.NODE_ENV, so
+// this is what I am doing until I figure out a better
+// solution. If you are hosting this on a real Node
+// server and not Firebase Functions, swap out this
+// ungodly boolean below for the commented code.
+const isDevelopment = false; // !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
 
 const redirect_uri = isDevelopment
   ? 'http://localhost:5001/listen-together-hf/us-central1/app/callback'
   : 'https://us-central1-listen-together-hf.cloudfunctions.net/app/callback';
 const callbackURI = isDevelopment
   ? 'http://localhost:3000/#'
-  : 'https://listen-together-hf.web.app/#';
+  : 'https://listen.henryfellerhoff.com/#';
 
 const stateKey = 'spotify_auth_state';
+
+// I don't believe the "streaming" permission is necessary, but I left it in as
+// I was debating testing out the beta of Spotify's Web Playback API
 const scope =
   'user-read-private user-read-email user-read-playback-state user-modify-playback-state streaming';
 
@@ -33,7 +54,7 @@ app.get('/login', (req, res) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
 
-  // your application requests authorization
+  // Request authentication from Spotify
   res.redirect(
     'https://accounts.spotify.com/authorize?' +
       querystring.stringify({
@@ -80,21 +101,11 @@ app.get('/callback', function (req, res) {
 
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
-        const access_token = body.access_token,
-          refresh_token = body.refresh_token;
+        const access_token = body.access_token;
+        const refresh_token = body.refresh_token;
 
-        // const options = {
-        //   url: 'https://api.spotify.com/v1/me',
-        //   headers: { Authorization: 'Bearer ' + access_token },
-        //   json: true,
-        // };
-
-        // use the access token to access the Spotify Web API
-        // request.get(options, function (error, response, body) {
-        //   console.log(body);
-        // });
-
-        // we can also pass the token to the browser to make requests from there
+        // Pass the access token back to the Listen Together client
+        // to be able to make client-side API requests
         res.redirect(
           callbackURI +
             querystring.stringify({
@@ -114,33 +125,5 @@ app.get('/callback', function (req, res) {
   }
 });
 
-// app.get('/refresh_token', function (req, res) {
-//   // requesting access token from refresh token
-//   const refresh_token = req.query.refresh_token;
-//   const authOptions = {
-//     url: 'https://accounts.spotify.com/api/token',
-//     headers: {
-//       Authorization:
-//         'Basic ' +
-//         new Buffer(
-//           process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET
-//         ).toString('base64'),
-//     },
-//     form: {
-//       grant_type: 'refresh_token',
-//       refresh_token: refresh_token,
-//     },
-//     json: true,
-//   };
-
-//   request.post(authOptions, function (error, response, body) {
-//     if (!error && response.statusCode === 200) {
-//       const access_token = body.access_token;
-//       res.send({
-//         access_token: access_token,
-//       });
-//     }
-//   });
-// });
-
+// Specific to Firebase – I don't believe this is needed for a standalone Node server
 exports.app = functions.https.onRequest(app);

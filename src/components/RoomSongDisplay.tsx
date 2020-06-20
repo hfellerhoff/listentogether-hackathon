@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/core';
 import { Link } from 'react-router-dom';
 import { RoomInformation } from '../state/roomInformation';
-import { FiPlay, FiPause } from 'react-icons/fi';
+// import { FiPlay, FiPause } from 'react-icons/fi';
 
 interface Props {
   room: RoomInformation;

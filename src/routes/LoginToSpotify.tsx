@@ -7,6 +7,7 @@ import {
   Link as ExternalLink,
 } from '@chakra-ui/core';
 import { FaSpotify } from 'react-icons/fa';
+import LogoButton from '../components/LogoButton';
 
 interface Props {}
 
@@ -23,9 +24,10 @@ export const LoginToSpotify = (props: Props) => {
         Grab some friends, connect your Spotify account, and listen to music in
         sync with each other.
       </Text>
-      <ExternalLink href={loginLink}>
+      <a href={loginLink}>
         <Button
-          my={4}
+          mt={4}
+          mb={10}
           variant='solid'
           variantColor='green'
           size='lg'
@@ -33,13 +35,19 @@ export const LoginToSpotify = (props: Props) => {
         >
           <Text ml={3}>Login with Spotify</Text>
         </Button>
-      </ExternalLink>
-      <Text color='#9EA5B3'>
-        Built with{' '}
-        <span role='img' aria-label='heart'>
-          ❤️
-        </span>{' '}
-        for Same Home Different Hacks – June 2020
+      </a>
+      <Text color='#9EA5B3' m={0}>
+        Built by
+        <LogoButton />
+        for{' '}
+        <ExternalLink
+          href='https://samehomedifferenthacks.devpost.com/?ref_content=default&ref_feature=challenge&ref_medium=portfolio'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          Same Home Different Hacks
+        </ExternalLink>{' '}
+        – June 2020
       </Text>
     </Stack>
   );
