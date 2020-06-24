@@ -31,4 +31,4 @@ I was only able to implement public room sharing during the Hackathon, but I'd l
 - typescript
 
 ### Try it out
-https://listen-together-hf.web.app
+https://listen.henryfellerhoff.com
