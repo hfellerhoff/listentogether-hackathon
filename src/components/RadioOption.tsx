@@ -6,7 +6,7 @@ interface Props {
   description: string;
   isChecked?: boolean;
   isDisabled?: boolean;
-  value?: string;
+  value?: string | boolean;
   children?: JSX.Element | JSX.Element[] | string;
 }
 

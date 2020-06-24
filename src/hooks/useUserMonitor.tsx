@@ -5,6 +5,7 @@ import {
   spotifyApiState,
   accessTokenState,
 } from '../state';
+import firebase from '../firebase';
 
 const useUserMonitor = () => {
   const spotifyAPI = useRecoilValue(spotifyApiState);
@@ -18,7 +19,26 @@ const useUserMonitor = () => {
         const response = await spotifyAPI.getMe({
           access_token: accessToken,
         });
-        setUser(response);
+
+        const userRef = firebase.database().ref(`users/${response.id}`);
+
+        // When the user disconnects
+        userRef.onDisconnect().update({
+          connected: false,
+          room: null,
+        });
+
+        const updatedUser = {
+          connected: true,
+          details: response,
+        };
+
+        setUser({
+          connected: true,
+          details: response,
+        });
+
+        userRef.update(updatedUser);
       } catch (error) {
         console.error('User fetch error:');
         console.error(error);

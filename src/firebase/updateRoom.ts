@@ -12,20 +12,17 @@ const updateRoom = async (
     try {
       firebase
         .database()
-        .ref('rooms/' + room.id)
+        .ref(`rooms/${room.id}/song`)
         .update({
-          ...room,
-          song: {
-            id: songInformation.item.id,
-            addedAt: Date.now(),
-            progress: songInformation.progress_ms
-              ? songInformation.progress_ms
-              : 0,
-            uri: songInformation.item.uri,
-            isPlaying: songInformation.is_playing,
-          },
+          id: songInformation.item.id,
+          addedAt: Date.now(),
+          progress: songInformation.progress_ms
+            ? songInformation.progress_ms
+            : 0,
+          uri: songInformation.item.uri,
+          isPlaying: songInformation.is_playing,
         });
-      console.log('Successfully updated room.');
+      // console.log('Successfully updated room.');
     } catch (error) {
       console.error(error);
     }

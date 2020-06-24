@@ -2,18 +2,9 @@ import React, { useEffect, useState } from 'react';
 import firebase from '../firebase';
 import { useObject } from 'react-firebase-hooks/database';
 import { useParams, Link } from 'react-router-dom';
-import {
-  Heading,
-  Spinner,
-  Button,
-  Text,
-  Box,
-  Image,
-  Flex,
-  Alert,
-} from '@chakra-ui/core';
+import { Heading, Spinner, Button, Text, Box, Alert } from '@chakra-ui/core';
 import RoomSongDisplay from '../components/RoomSongDisplay';
-import { FaSpotify, FaUser } from 'react-icons/fa';
+import { FaSpotify } from 'react-icons/fa';
 import updateRoom from '../firebase/updateRoom';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import {
@@ -29,6 +20,8 @@ import {
   RoomInformation,
 } from '../state/roomInformation';
 import SongControl from '../components/SongControl';
+import Layout from '../components/layout';
+import ListenerDisplay from '../components/ListenerDisplay';
 
 interface Props {
   checkingPlayback: boolean;
@@ -75,11 +68,9 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
       }
       setRoom(document);
       const trackDocumentID = document.song.id;
-      console.log(trackDocumentID);
 
       try {
         const response = await spotifyApi.getTrack(trackDocumentID);
-        console.log(response);
         setTrack(response);
       } catch (error) {
         console.error(error);
@@ -111,13 +102,12 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
     }
     if (!isOwner && shouldBeListening && room) {
       if (user && !isListening) {
-        addUserToRoom(room, user);
-      }
-      if (isListening) {
         spotifyApi.play({
           uris: [room.song.uri],
           position_ms: Date.now() - room.song.addedAt + room.song.progress,
         });
+        addUserToRoom(room, user);
+        setIsListening(true);
       }
     } else if (!isOwner && !shouldBeListening && isListening && room && user) {
       try {
@@ -145,14 +135,7 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
 
   useEffect(() => {
     if (room && track && user) {
-      if (user.id in room?.users) {
-        const owner = room.users[user.id].owner;
-        if (owner !== isOwner) {
-          if (!checkingPlayback) setShouldCheckPlayback(true);
-          spotifyApi.play();
-          setIsOwner(owner);
-        }
-      }
+      setIsOwner(room.owner.id === user.details.id);
     }
   }, [
     track,
@@ -169,12 +152,20 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
 
   const handleLeaveRoom = () => {
     setStopSearching(true);
-    if (isOwner)
+    if (isOwner) {
+      setIsDeleted(true);
       firebase
         .database()
         .ref('rooms/' + roomID)
         .remove();
-    else {
+
+      firebase
+        .database()
+        .ref('users/' + user?.details.id)
+        .update({
+          room: null,
+        });
+    } else {
       if (user && room) {
         spotifyApi.pause();
         removeUserFromRoom(room, user);
@@ -183,7 +174,12 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
   };
 
   return (
-    <div>
+    <Layout
+      title={room ? `${room.owner.name}'s Room` : `Listening Room`}
+      centered
+      boxed
+      maxW={550}
+    >
       <Link to={`/rooms`}>
         <Button
           variant={isOwner ? 'solid' : 'link'}
@@ -199,7 +195,7 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
       {room && track ? (
         <>
           <RoomSongDisplay track={track} room={room} />
-          {isOwner ? <SongControl isPlaying={room.song.isPlaying} /> : <></>}
+          <SongControl isOwner={isOwner} isPlaying={room.song.isPlaying} />
           <Heading size='md' mt={8} textAlign='left'>
             Currently Listening
           </Heading>
@@ -214,33 +210,15 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
             </Alert>
           ) : (
             <>
-              <Box mt={4}>
-                {Object.values(room.users).map((user, index) => (
-                  <Flex key={index} mt={2}>
-                    {user.imageUrl ? (
-                      <Image
-                        src={user.imageUrl}
-                        w={8}
-                        h={8}
-                        borderRadius='50%'
-                      />
-                    ) : (
-                      <Flex
-                        background='#11151C'
-                        w={8}
-                        h={8}
-                        align='center'
-                        justify='center'
-                        borderRadius='50%'
-                      >
-                        <FaUser />
-                      </Flex>
-                    )}
-                    <Text ml={3} mt={0.5}>
-                      {user.name}
-                    </Text>
-                  </Flex>
-                ))}
+              <Box mt={2}>
+                <ListenerDisplay user={room.owner} />
+                {room.listeners ? (
+                  Object.values(room.listeners).map((listener, index) => (
+                    <ListenerDisplay key={index} user={listener} />
+                  ))
+                ) : (
+                  <></>
+                )}
               </Box>
               <Button
                 onClick={() => {
@@ -266,25 +244,31 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
         </>
       ) : (
         <Box>
-          <Spinner size='lg' mt={8} mb={4} />
-          <Text>Not loading? Try joining the room from the home screen.</Text>
-          <Link to={`/`}>
-            <Button
-              variant='solid'
-              variantColor='green'
-              size='lg'
-              rightIcon='arrow-forward'
-              mt={4}
-            >
-              Go Home
+          <Spinner size='lg' mt={8} mb={6} />
+          <Text>
+            Not loading? Make sure your room ID is correct and try again.
+          </Text>
+          <Link to={`/rooms`}>
+            <Button variant='solid' variantColor='green' size='lg' mt={6}>
+              Back
             </Button>
           </Link>
         </Box>
       )}
-      <Text color='#9EA5B3' mt={8}>
-        Room ID: {roomID}
-      </Text>
-    </div>
+      {!room?.isPublic ? (
+        <Box mt={12}>
+          <Text mb={2}>
+            This is a private room. Share this ID with your friends to allow
+            them to join:
+          </Text>
+          <Heading size='md'>{roomID}</Heading>
+        </Box>
+      ) : (
+        <Text color='#9EA5B3' mt={8}>
+          Room ID: {roomID}
+        </Text>
+      )}
+    </Layout>
   );
 };
 

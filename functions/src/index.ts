@@ -26,7 +26,7 @@ dotenv.config();
 // solution. If you are hosting this on a real Node
 // server and not Firebase Functions, swap out this
 // ungodly boolean below for the commented code.
-const isDevelopment = false; // !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+const isDevelopment = true; // !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
 
 const redirect_uri = isDevelopment
   ? 'http://localhost:5001/listen-together-hf/us-central1/app/callback'

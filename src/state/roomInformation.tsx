@@ -1,7 +1,14 @@
 import { atom } from 'recoil';
 
+export type User = {
+  id: string;
+  imageUrl: string;
+  name: string;
+};
+
 export interface RoomInformation {
   id: string;
+  isPublic: boolean;
   song: {
     addedAt: number;
     id: string;
@@ -9,12 +16,9 @@ export interface RoomInformation {
     uri: string;
     isPlaying: boolean;
   };
-  users: {
-    [id: string]: {
-      imageUrl: string;
-      name: string;
-      owner: boolean;
-    };
+  owner: User;
+  listeners: {
+    [id: string]: User;
   };
 }
 

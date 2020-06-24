@@ -33,12 +33,13 @@ const App = () => {
 
   if (params.access_token && !accessToken) setAccessToken(params.access_token);
 
-  const handleCreateRoom = async () => {
+  const handleCreateRoom = async (isPublic: boolean) => {
     if (songInformation && accessToken) {
       const id = await createRoom(
         spotifyAPI,
         accessToken,
-        songInformation as SpotifyApi.CurrentPlaybackResponse
+        songInformation as SpotifyApi.CurrentPlaybackResponse,
+        isPublic
       );
       history.push(`/rooms/${id}`);
     }
@@ -67,12 +68,10 @@ const App = () => {
               </Layout>
             </Route>
             <Route path='/rooms/:roomID'>
-              <Layout title='Listening Room' centered boxed maxW={550}>
-                <Room
-                  checkingPlayback={isCheckingPlayback}
-                  setShouldCheckPlayback={setIsCheckingPlayback}
-                />
-              </Layout>
+              <Room
+                checkingPlayback={isCheckingPlayback}
+                setShouldCheckPlayback={setIsCheckingPlayback}
+              />
             </Route>
             <Route path='/rooms'>
               <Layout title='Rooms' centered boxed maxW={700}>

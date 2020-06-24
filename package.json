@@ -32,9 +32,10 @@
   },
   "scripts": {
     "serve": "firebase serve --only functions",
+    "start": "react-scripts start",
+    "start:functions": "cd functions && npm run serve",
     "start:all": "concurrently \"npm run start\" \"cd functions && npm run serve\"",
     "deploy:web": "npm run build && firebase deploy --only hosting",
-    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

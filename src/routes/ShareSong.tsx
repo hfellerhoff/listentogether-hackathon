@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Stack,
   Heading,
@@ -12,11 +12,11 @@ import { PlaybackInformation } from '../state/playbackInformation';
 
 interface Props {
   songInformation: PlaybackInformation;
-  createRoom: () => void;
+  createRoom: (isPublic: boolean) => void;
 }
 
 export const ShareSong = ({ songInformation, createRoom }: Props) => {
-  // const [value, setValue] = useState('public');
+  const [selection, setSelection] = useState('public');
 
   return (
     <Stack align='center' justify='center'>
@@ -33,7 +33,7 @@ export const ShareSong = ({ songInformation, createRoom }: Props) => {
             isInline
             mt={5}
             width='100%'
-            // onChange={(e) => setValue(e as string)}
+            onChange={(e) => setSelection(e as string)}
           >
             <RadioOption
               value='public'
@@ -44,7 +44,6 @@ export const ShareSong = ({ songInformation, createRoom }: Props) => {
               value='private'
               title='Private'
               description='Invite friends to listen in.'
-              isDisabled
             ></RadioOption>
           </RadioButtonGroup>
           <Button
@@ -53,7 +52,7 @@ export const ShareSong = ({ songInformation, createRoom }: Props) => {
             size='lg'
             rightIcon='arrow-forward'
             mt={4}
-            onClick={() => createRoom()}
+            onClick={() => createRoom(selection === 'public')}
           >
             Next
           </Button>

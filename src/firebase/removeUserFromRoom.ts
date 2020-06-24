@@ -8,16 +8,13 @@ const removeUserFromRoom = async (
 ) => {
   if (!room || !user) return;
 
-  try {
-    const users = { ...room.users };
-    delete users[user.id];
+  console.log(`Removing ${user.details.id} from listeners...`);
 
+  try {
     firebase
       .database()
-      .ref('rooms/' + room.id)
-      .update({
-        users,
-      });
+      .ref(`rooms/${room.id}/listeners/${user.details.id}`)
+      .remove();
   } catch (error) {
     console.error(error);
   }
