@@ -21,7 +21,7 @@ const ListenerDisplay = ({ user }: Props) => {
           justify='center'
           borderRadius='50%'
         >
-          <FaUser />
+          <FaUser color='#ffffff' />
         </Flex>
       )}
       <Text ml={3} mt={0.5}>
