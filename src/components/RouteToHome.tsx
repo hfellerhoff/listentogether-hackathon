@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@chakra-ui/core';
 import { FiHome } from 'react-icons/fi';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { userInformationState } from '../state';
 import { useHistory } from 'react-router-dom';
 import removeUserFromRoom from '../firebase/removeUserFromRoom';
@@ -14,13 +14,14 @@ interface Props {}
 const RouteToHome = (props: Props) => {
   const history = useHistory();
   const user = useRecoilValue(userInformationState);
-  const room = useRecoilValue(roomInformationState);
+  const [room, setRoom] = useRecoilState(roomInformationState);
   const [modalVisible, setModalVisible] = useState(false);
 
   const onGoHomeFromModal = () => {
     if (room && user) {
       destroyRoom(room, user);
       setModalVisible(false);
+      setRoom(null);
       history.push(`/`);
     }
   };
@@ -32,6 +33,7 @@ const RouteToHome = (props: Props) => {
       } else {
         if (user) {
           removeUserFromRoom(room, user);
+          setRoom(null);
           history.push(`/`);
         }
       }
