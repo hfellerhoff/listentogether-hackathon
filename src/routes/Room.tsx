@@ -22,6 +22,7 @@ import {
 import SongControl from '../components/SongControl';
 import Layout from '../components/layout';
 import ListenerDisplay from '../components/ListenerDisplay';
+import destroyRoom from '../firebase/destroyRoom';
 
 interface Props {
   checkingPlayback: boolean;
@@ -153,18 +154,10 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
   const handleLeaveRoom = () => {
     setStopSearching(true);
     if (isOwner) {
-      setIsDeleted(true);
-      firebase
-        .database()
-        .ref('rooms/' + roomID)
-        .remove();
-
-      firebase
-        .database()
-        .ref('users/' + user?.details.id)
-        .update({
-          room: null,
-        });
+      if (room && user) {
+        setIsDeleted(true);
+        destroyRoom(room, user);
+      }
     } else {
       if (user && room) {
         spotifyApi.pause();

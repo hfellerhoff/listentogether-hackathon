@@ -18,10 +18,21 @@ const addUserToRoom = async (room: RoomInformation, user: UserInformation) => {
         : '',
     };
 
-    firebase
+    const listenerRef = firebase
       .database()
-      .ref(`rooms/${room.id}/listeners/${user.details.id}`)
-      .update(userToAdd);
+      .ref(`rooms/${room.id}/listeners/${user.details.id}`);
+
+    const userRef = firebase.database().ref(`users/${user.details.id}`);
+
+    listenerRef.onDisconnect().remove();
+
+    listenerRef.update(userToAdd);
+    userRef.update({
+      room: {
+        id: room.id,
+        isOwner: false,
+      },
+    });
   } catch (error) {
     console.error(error);
   }

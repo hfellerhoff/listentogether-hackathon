@@ -15,6 +15,8 @@ const removeUserFromRoom = async (
       .database()
       .ref(`rooms/${room.id}/listeners/${user.details.id}`)
       .remove();
+
+    firebase.database().ref(`users/${user.details.id}/room`).remove();
   } catch (error) {
     console.error(error);
   }
