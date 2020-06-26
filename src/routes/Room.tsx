@@ -45,6 +45,7 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
   );
 
   const [lastTrackFetch, setLastTrackFetch] = useState(0);
+  // const [lastSynced, setLastSynced] = useState<number>(0);
 
   const [isOwner, setIsOwner] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -93,22 +94,53 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
   ]);
 
   useEffect(() => {
-    if (isOwner && !stopSearching) {
+    if (!stopSearching) {
       if (!checkingPlayback) {
         setShouldCheckPlayback(true);
       }
-      if (playbackInformation && room) {
+      if (isOwner && playbackInformation && room) {
         updateRoom(room, playbackInformation);
       }
     }
     if (!isOwner && shouldBeListening && room) {
-      if (user && !isListening) {
-        spotifyApi.play({
-          uris: [room.song.uri],
-          position_ms: Date.now() - room.song.addedAt + room.song.progress,
-        });
-        addUserToRoom(room, user);
-        setIsListening(true);
+      if (user) {
+        const now = Date.now();
+        const progress = now - room.song.addedAt + room.song.progress;
+
+        if (!room.song.isPlaying && playbackInformation?.is_playing) {
+          spotifyApi.pause();
+        } else if (room.song.isPlaying && !playbackInformation?.is_playing) {
+          spotifyApi.play({
+            uris: [room.song.uri],
+            position_ms: progress,
+          });
+        } else if (room.song.isPlaying) {
+          // && now - lastSynced > 1000
+          // setLastSynced(now);
+          let isOutOfSync = true;
+          if (playbackInformation) {
+            const progressDifference = Math.abs(
+              (playbackInformation.progress_ms || 0) - progress
+            );
+            const isSameSong = playbackInformation.item?.id === room.song.id;
+            console.log('-----------');
+            console.log('Progress Difference: ' + progressDifference);
+            if (progressDifference < 1000 && isSameSong) isOutOfSync = false;
+
+            console.log('In Sync: ' + !isOutOfSync);
+            if (isOutOfSync) {
+              console.log('Syncing up...');
+              spotifyApi.play({
+                uris: [room.song.uri],
+                position_ms: progress,
+              });
+            }
+          }
+        }
+        if (!isListening) {
+          addUserToRoom(room, user);
+          setIsListening(true);
+        }
       }
     } else if (!isOwner && !shouldBeListening && isListening && room && user) {
       try {

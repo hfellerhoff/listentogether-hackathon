@@ -63,8 +63,11 @@ export const Rooms = () => {
 
   let publicTrackCount = 0;
   for (const room of rooms) {
-    if (room.owner.id === user?.details.id)
-      return <Redirect to={`rooms/${room.id}`} />;
+    if (user) {
+      if (room.owner.id === user?.details.id) {
+        return <Redirect to={`rooms/${room.id}`} />;
+      }
+    }
     if (room.isPublic) publicTrackCount += 1;
   }
 

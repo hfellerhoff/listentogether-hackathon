@@ -27,7 +27,7 @@ const createRoom = async (
       owner: {
         id: user.id,
         name: user.display_name ? user.display_name : user.email,
-        imageUrl: user.images ? user.images[0].url : '',
+        imageUrl: user.images ? (user.images[0] ? user.images[0].url : '') : '',
       },
       listeners: {},
     };
