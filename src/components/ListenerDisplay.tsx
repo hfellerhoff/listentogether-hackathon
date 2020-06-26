@@ -1,14 +1,21 @@
 import React from 'react';
-import { Flex, Image, Text } from '@chakra-ui/core';
-import { FaUser } from 'react-icons/fa';
-import { User } from '../state/roomInformation';
+import { Flex, Image, Text, Tooltip, Box, Button } from '@chakra-ui/core';
+import { FaUser, FaCrown } from 'react-icons/fa';
+import { User, roomInformationState } from '../state/roomInformation';
+import { useRecoilValue } from 'recoil';
+import { userInformationState } from '../state';
+import transferRoomOwnership from '../firebase/transferRoomOwnership';
 // import ScaleLoader from 'react-spinners/ScaleLoader';
 
 interface Props {
   user: User;
+  isOwner?: boolean;
 }
 
-const ListenerDisplay = ({ user }: Props) => {
+const ListenerDisplay = ({ user, isOwner }: Props) => {
+  const globalUser = useRecoilValue(userInformationState);
+  const room = useRecoilValue(roomInformationState);
+
   return (
     <Flex align='center' justify='space-between'>
       <Flex mt={2}>
@@ -30,7 +37,21 @@ const ListenerDisplay = ({ user }: Props) => {
           {user.name}
         </Text>
       </Flex>
-      {/* <ScaleLoader height={20} width={3} radius={1.5} /> */}
+      {isOwner ? (
+        <Tooltip aria-label='Room Owner' label='Room Owner' placement='left'>
+          <Box>
+            <FaCrown fontSize='1.4em' />
+          </Box>
+        </Tooltip>
+      ) : globalUser?.room?.isOwner ? (
+        // TODO: Room ownership transfer
+        // <Button onClick={() => transferRoomOwnership(room, user, globalUser)}>
+        //   Make Owner
+        // </Button>
+        <></>
+      ) : (
+        <></>
+      )}
     </Flex>
   );
 };

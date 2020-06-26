@@ -64,8 +64,10 @@ export const Rooms = () => {
   let publicTrackCount = 0;
   for (const room of rooms) {
     if (user) {
-      if (room.owner.id === user?.details.id) {
-        return <Redirect to={`rooms/${room.id}`} />;
+      if (room.owner && user.details) {
+        if (room.owner.id === user.details.id) {
+          return <Redirect to={`rooms/${room.id}`} />;
+        }
       }
     }
     if (room.isPublic) publicTrackCount += 1;
@@ -104,14 +106,16 @@ export const Rooms = () => {
       ) : (
         <>
           {tracks.map((track, index) => {
-            if (rooms[index].isPublic) {
-              return (
-                <RoomSongDisplay
-                  key={index}
-                  track={track}
-                  room={rooms[index]}
-                />
-              );
+            if (rooms) {
+              if (rooms[index].isPublic) {
+                return (
+                  <RoomSongDisplay
+                    key={index}
+                    track={track}
+                    room={rooms[index]}
+                  />
+                );
+              }
             }
             return <></>;
           })}

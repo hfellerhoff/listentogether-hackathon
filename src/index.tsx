@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/core';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
+import { HelmetProvider } from 'react-helmet-async';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -17,9 +18,11 @@ ReactDOM.render(
       <ColorModeProvider>
         <CSSReset />
         <RecoilRoot>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <HelmetProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </HelmetProvider>
         </RecoilRoot>
       </ColorModeProvider>
     </ThemeProvider>

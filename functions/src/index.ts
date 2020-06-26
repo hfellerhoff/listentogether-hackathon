@@ -33,7 +33,7 @@ const redirect_uri = isDevelopment
   : 'https://us-central1-listen-together-hf.cloudfunctions.net/app/callback';
 const callbackURI = isDevelopment
   ? 'http://localhost:3000/#'
-  : 'https://listen.henryfellerhoff.com/#';
+  : 'https://listentogether.app/#';
 
 const stateKey = 'spotify_auth_state';
 

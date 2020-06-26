@@ -6,18 +6,19 @@ import getHashParams from './util/getHashParams';
 import ToggleColorMode from './components/ToggleColorMode';
 import usePlaybackMonitor from './hooks/usePlaybackMonitor';
 import {
-  LoginToSpotify,
   SearchOrShare,
   ChooseSong,
   ShareSong,
   Room,
   Rooms,
+  LandingPage,
 } from './routes';
 import createRoom from './firebase/createRoom';
 import RouteToHome from './components/RouteToHome';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { spotifyApiState, accessTokenState } from './state';
 import useUserMonitor from './hooks/useUserMonitor';
+import RepeatedBackgroundLanding from './components/RepeatedBackgroundLanding';
 
 const App = () => {
   const params = getHashParams() as { access_token: string };
@@ -47,59 +48,64 @@ const App = () => {
 
   return (
     <>
-      <RepeatedBackground />
       <ToggleColorMode />
-      <RouteToHome />
       <Switch>
         <Route exact path='/'>
           {accessToken ? (
             <Redirect to='/search-or-share' />
           ) : (
-            <Layout title='Home' centered boxed maxW={550}>
-              <LoginToSpotify />
-            </Layout>
+            <>
+              <RepeatedBackgroundLanding />
+              <Layout title='Home'>
+                <LandingPage />
+              </Layout>
+            </>
           )}
         </Route>
         {accessToken ? (
-          <Switch>
-            <Route path='/search-or-share'>
-              <Layout title='Search or Share' centered boxed maxW={550}>
-                <SearchOrShare />
-              </Layout>
-            </Route>
-            <Route path='/rooms/:roomID'>
-              <Room
-                checkingPlayback={isCheckingPlayback}
-                setShouldCheckPlayback={setIsCheckingPlayback}
-              />
-            </Route>
-            <Route path='/rooms'>
-              <Layout title='Rooms' centered boxed maxW={700}>
-                <Rooms />
-              </Layout>
-            </Route>
-            <Route path='/choose-song'>
-              {isCheckingPlayback ? (
-                <Redirect to='/share' />
-              ) : (
-                <Layout title='Choose Song' centered boxed maxW={550}>
-                  <ChooseSong
-                    checkPlayback={() => {
-                      setIsCheckingPlayback(true);
-                    }}
+          <>
+            <RepeatedBackground />
+            <RouteToHome />
+            <Switch>
+              <Route path='/search-or-share'>
+                <Layout title='Search or Share' centered boxed maxW={550}>
+                  <SearchOrShare />
+                </Layout>
+              </Route>
+              <Route path='/rooms/:roomID'>
+                <Room
+                  checkingPlayback={isCheckingPlayback}
+                  setShouldCheckPlayback={setIsCheckingPlayback}
+                />
+              </Route>
+              <Route path='/rooms'>
+                <Layout title='Rooms' centered boxed maxW={700}>
+                  <Rooms />
+                </Layout>
+              </Route>
+              <Route path='/choose-song'>
+                {isCheckingPlayback ? (
+                  <Redirect to='/share' />
+                ) : (
+                  <Layout title='Choose Song' centered boxed maxW={550}>
+                    <ChooseSong
+                      checkPlayback={() => {
+                        setIsCheckingPlayback(true);
+                      }}
+                    />
+                  </Layout>
+                )}
+              </Route>
+              <Route path='/share'>
+                <Layout title='Share Song' centered boxed maxW={550}>
+                  <ShareSong
+                    createRoom={handleCreateRoom}
+                    songInformation={songInformation}
                   />
                 </Layout>
-              )}
-            </Route>
-            <Route path='/share'>
-              <Layout title='Share Song' centered boxed maxW={550}>
-                <ShareSong
-                  createRoom={handleCreateRoom}
-                  songInformation={songInformation}
-                />
-              </Layout>
-            </Route>
-          </Switch>
+              </Route>
+            </Switch>
+          </>
         ) : (
           <Redirect to='/' />
         )}

@@ -236,7 +236,7 @@ export const Room = ({ checkingPlayback, setShouldCheckPlayback }: Props) => {
           ) : (
             <>
               <Box mt={2}>
-                <ListenerDisplay user={room.owner} />
+                <ListenerDisplay user={room.owner} isOwner />
                 {room.listeners ? (
                   Object.values(room.listeners).map((listener, index) => (
                     <ListenerDisplay key={index} user={listener} />

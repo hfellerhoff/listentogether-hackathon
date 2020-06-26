@@ -34,8 +34,8 @@ const createRoom = async (
     try {
       const roomRef = firebase.database().ref(`rooms/${id}`);
       roomRef.onDisconnect().remove();
-      await roomRef.set(document);
-      await firebase
+      roomRef.set(document);
+      firebase
         .database()
         .ref(`users/${user.id}`)
         .update({

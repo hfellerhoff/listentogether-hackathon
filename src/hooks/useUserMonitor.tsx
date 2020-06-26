@@ -6,11 +6,22 @@ import {
   accessTokenState,
 } from '../state';
 import firebase from '../firebase';
+import { useObject } from 'react-firebase-hooks/database';
 
 const useUserMonitor = () => {
   const spotifyAPI = useRecoilValue(spotifyApiState);
   const accessToken = useRecoilValue(accessTokenState);
   const [user, setUser] = useRecoilState(userInformationState);
+  const [value, loading, error] = useObject(
+    firebase.database().ref('users/' + user?.details.id)
+  );
+
+  useEffect(() => {
+    if (!loading && !error && value) {
+      const document = value.val();
+      if (document) setUser(document);
+    }
+  }, [value, loading, error, setUser]);
 
   useEffect(() => {
     const updateUser = async () => {
