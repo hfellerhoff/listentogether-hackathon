@@ -63,19 +63,30 @@ export const LandingPage = (props: Props) => {
               Grab some friends, connect your Spotify account, and listen to
               music in sync with each other.
             </Text>
-            <a href={loginLink}>
-              <Button
-                mt={12}
-                mb={10}
+            <Box mt={12} mb={10}>
+              <a href={loginLink}>
+                <Button
+                  variant='solid'
+                  variantColor='green'
+                  size='lg'
+                  leftIcon={() => <FaSpotify />}
+                  boxShadow='0px 5px 5px 0px rgba(0, 0, 0, 0.3)'
+                >
+                  <Text ml={3}>Login with Spotify</Text>
+                </Button>
+              </a>
+              {/* <Button
+                ml={4}
                 variant='solid'
-                variantColor='green'
+                variantColor='pink'
                 size='lg'
-                leftIcon={() => <FaSpotify />}
-                boxShadow='0px 5px 5px 0px rgba(0, 0, 0, 0.3)'
+                leftIcon={() => <FaApple />}
+                // boxShadow='0px 5px 5px 0px rgba(0, 0, 0, 0.3)'
+                isDisabled
               >
-                <Text ml={3}>Login with Spotify</Text>
-              </Button>
-            </a>
+                <Text ml={3}>Coming soon!</Text>
+              </Button> */}
+            </Box>
           </Box>
           <Flex align='center' justify='flex-end'>
             <Image
