@@ -19,6 +19,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { spotifyApiState, accessTokenState } from './state';
 import useUserMonitor from './hooks/useUserMonitor';
 import RepeatedBackgroundLanding from './components/RepeatedBackgroundLanding';
+import InstructionFAB from './components/InstructionFAB';
 
 const App = () => {
   const params = getHashParams() as { access_token: string };
@@ -66,6 +67,7 @@ const App = () => {
           <>
             <RepeatedBackground />
             <RouteToHome />
+            <InstructionFAB />
             <Switch>
               <Route path='/search-or-share'>
                 <Layout title='Search or Share' centered boxed maxW={550}>
