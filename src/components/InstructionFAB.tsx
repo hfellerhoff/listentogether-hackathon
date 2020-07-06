@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   useColorMode,
-  Link as ChakraLink,
   Button,
   Modal,
   ModalOverlay,

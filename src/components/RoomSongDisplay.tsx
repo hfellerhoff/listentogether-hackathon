@@ -23,7 +23,7 @@ const RoomSongDisplay = ({ room, track }: Props) => {
   return (
     <Link to={`/rooms/${room.id}`}>
       <Box>
-        <Flex align='center' mt={8}>
+        <Flex align='center' mt={8} mb={6}>
           <Box maxW='20%' pos='relative'>
             <Image src={track.album.images[0].url} w='100%' h='100%' />
           </Box>

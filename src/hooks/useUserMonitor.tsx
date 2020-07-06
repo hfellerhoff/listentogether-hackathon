@@ -27,9 +27,8 @@ const useUserMonitor = () => {
     const updateUser = async () => {
       if (!accessToken) return;
       try {
-        const response = await spotifyAPI.getMe({
-          access_token: accessToken,
-        });
+        spotifyAPI.setAccessToken(accessToken);
+        const response = await spotifyAPI.getMe();
 
         const userRef = firebase.database().ref(`users/${response.id}`);
 
@@ -48,6 +47,8 @@ const useUserMonitor = () => {
           connected: true,
           details: response,
         });
+
+        console.log(response);
 
         userRef.update(updatedUser);
       } catch (error) {

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Flex, Image, Text, Tooltip, Box, Button } from '@chakra-ui/core';
+import { Flex, Image, Text, Tooltip, Box } from '@chakra-ui/core';
 import { FaUser, FaCrown } from 'react-icons/fa';
-import { User, roomInformationState } from '../state/roomInformation';
+import { User } from '../state/roomInformation';
 import { useRecoilValue } from 'recoil';
 import { userInformationState } from '../state';
-import transferRoomOwnership from '../firebase/transferRoomOwnership';
+// import transferRoomOwnership from '../firebase/transferRoomOwnership';
 // import ScaleLoader from 'react-spinners/ScaleLoader';
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 
 const ListenerDisplay = ({ user, isOwner }: Props) => {
   const globalUser = useRecoilValue(userInformationState);
-  const room = useRecoilValue(roomInformationState);
+  // const room = useRecoilValue(roomInformationState);
 
   return (
     <Flex align='center' justify='space-between'>

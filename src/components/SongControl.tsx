@@ -19,7 +19,7 @@ const SongControl = ({ isPlaying, isOwner }: Props) => {
   }, [isPlaying]);
 
   return (
-    <Flex height={12} mt={6} align='center' justify='center'>
+    <Flex height={12} align='center' justify='center'>
       <SongControlButton
         onClick={() => spotifyApi.skipToPrevious()}
         isDisabled={!isOwner}

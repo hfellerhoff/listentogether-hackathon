@@ -16,6 +16,7 @@
     "@types/react-helmet": "^6.0.0",
     "@types/react-router-dom": "^5.1.5",
     "@types/shortid": "0.0.29",
+    "@types/spotify-web-playback-sdk": "^0.1.7",
     "emotion-theming": "^10.0.27",
     "firebase": "^7.15.1",
     "react": "^16.13.1",
