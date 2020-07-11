@@ -1,55 +1,74 @@
 import firebase from '.';
 import shortid from 'shortid';
-import { RoomInformation } from '../state/roomInformation';
 import { SpotifyAPI } from '../state/spotifyAPI';
+import { RoomInformation } from '../models/RoomInformation';
+import Events from './Events';
+import { getFullUserIDFromValues } from '../util/user';
+import { UserInformationRoom } from '../models/UserInformation';
 
 const createRoom = async (
   spotifyAPI: SpotifyAPI,
   accessToken: string,
-  songInformation: SpotifyApi.CurrentPlaybackResponse,
-  isPublic: boolean
+  details: {
+    name: string;
+    isPublic: boolean;
+  }
 ) => {
   const user = await spotifyAPI.getMe(accessToken);
 
   const id = shortid.generate();
+  console.log('Creating room...');
 
-  if (user && songInformation.item) {
+  const userID = getFullUserIDFromValues(user.id, 'spotify');
+  const roomUser: UserInformationRoom = {
+    service: 'spotify',
+    id: userID,
+    displayName: user.display_name ? user.display_name : user.email,
+    image: {
+      src: user.images ? (user.images[0] ? user.images[0].url : '') : '',
+    },
+  };
+
+  if (user && roomUser) {
     const document: RoomInformation = {
       id,
-      isPublic,
-      song: {
-        id: songInformation.item.id,
-        addedAt: Date.now(),
-        progress: songInformation.progress_ms ? songInformation.progress_ms : 0,
-        uri: songInformation.item.uri,
-        isPlaying: songInformation.is_playing,
+      isPublic: details.isPublic,
+      name: details.name,
+      currentSong: null,
+      // currentSong: {
+      //   timestampAdded: Date.now(),
+      //   isPlaying: songInformation.is_playing,
+      //   progress: songInformation.progress_ms ? songInformation.progress_ms : 0,
+      //   duration: songInformation.item.duration_ms,
+      //   spotify: {
+      //     id: songInformation.item.id,
+      //     uri: songInformation.item.uri,
+      //   },
+      // },
+      recentMessages: [
+        {
+          type: 'room-create',
+          content: `${details.name} was created by ${
+            user.display_name || 'an anonymous user'
+          }. Welcome everyone!`,
+          user: roomUser,
+        },
+      ],
+      listeners: {
+        [userID]: roomUser,
       },
-      owner: {
-        id: user.id,
-        name: user.display_name ? user.display_name : user.email,
-        imageUrl: user.images ? (user.images[0] ? user.images[0].url : '') : '',
-      },
-      listeners: {},
+      owner: roomUser,
     };
+
     try {
-      const roomRef = firebase.database().ref(`rooms/${id}`);
-      roomRef.onDisconnect().remove();
-      roomRef.set(document);
-      firebase
-        .database()
-        .ref(`users/${user.id}`)
-        .update({
-          room: {
-            id: document.id,
-            isOwner: true,
-          },
-        });
+      firebase.firestore().collection('rooms').doc(id).set(document);
+      firebase.analytics().logEvent(Events.CreateRoom, document);
+
+      return document;
     } catch (error) {
       console.error(error);
     }
   }
-
-  return id;
 };
 
 export default createRoom;

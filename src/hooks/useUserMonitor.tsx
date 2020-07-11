@@ -6,51 +6,55 @@ import {
   accessTokenState,
 } from '../state';
 import firebase from '../firebase';
-import { useObject } from 'react-firebase-hooks/database';
+import { useDocument } from 'react-firebase-hooks/firestore';
+import { getFullUserID } from '../util/user';
+import { UserInformation } from '../models/UserInformation';
 
 const useUserMonitor = () => {
   const spotifyAPI = useRecoilValue(spotifyApiState);
   const accessToken = useRecoilValue(accessTokenState);
   const [user, setUser] = useRecoilState(userInformationState);
-  const [value, loading, error] = useObject(
-    firebase.database().ref('users/' + user?.details.id)
+
+  const fullUserID = getFullUserID(user);
+  const [snapshot, loading, error] = useDocument(
+    fullUserID ? firebase.firestore().collection('users').doc(fullUserID) : null
   );
 
   useEffect(() => {
-    if (!loading && !error && value) {
-      const document = value.val();
-      if (document) setUser(document);
+    if (!loading && !error && snapshot) {
+      if (!snapshot.exists) return;
+      const document = snapshot.data();
+      if (document) setUser(document as UserInformation);
     }
-  }, [value, loading, error, setUser]);
+  }, [snapshot, loading, error, setUser]);
 
   useEffect(() => {
     const updateUser = async () => {
       if (!accessToken) return;
       try {
         spotifyAPI.setAccessToken(accessToken);
-        const response = await spotifyAPI.getMe();
+        const spotifyUser = await spotifyAPI.getMe();
 
-        const userRef = firebase.database().ref(`users/${response.id}`);
-
-        // When the user disconnects
-        userRef.onDisconnect().update({
-          connected: false,
-          room: null,
-        });
-
-        const updatedUser = {
-          connected: true,
-          details: response,
+        const updatedUser: UserInformation = {
+          service: 'spotify',
+          id: spotifyUser.id,
+          displayName: spotifyUser.display_name || '',
+          currentRoomID: null,
+          image: {
+            src: spotifyUser.images ? spotifyUser.images[0].url || '' : '',
+          },
         };
 
-        setUser({
-          connected: true,
-          details: response,
-        });
+        console.log('Updating user...');
+        console.log(updatedUser);
 
-        console.log(response);
+        setUser(updatedUser);
 
-        userRef.update(updatedUser);
+        firebase
+          .firestore()
+          .collection('users')
+          .doc(getFullUserID(updatedUser))
+          .set(updatedUser);
       } catch (error) {
         console.error('User fetch error:');
         console.error(error);

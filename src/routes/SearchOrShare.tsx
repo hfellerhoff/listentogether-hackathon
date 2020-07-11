@@ -18,7 +18,7 @@ export const SearchOrShare = (props: Props) => {
   const [submitted, setSubmitted] = useState(false);
 
   if (submitted)
-    return <Redirect to={value === 'search' ? 'rooms' : 'choose-song'} />;
+    return <Redirect to={value === 'search' ? 'rooms' : 'create'} />;
 
   return (
     <Stack align='center' justify='center'>

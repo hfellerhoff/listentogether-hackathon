@@ -1,6 +1,7 @@
 import firebase from '.';
-import { UserInformation } from '../state/userInformation';
-import { RoomInformation } from '../state/roomInformation';
+import { RoomInformation } from '../models/RoomInformation';
+import { UserInformation } from '../models/UserInformation';
+import Events from './Events';
 
 const removeUserFromRoom = async (
   room: RoomInformation,
@@ -8,15 +9,24 @@ const removeUserFromRoom = async (
 ) => {
   if (!room || !user) return;
 
-  console.log(`Removing ${user.details.id} from listeners...`);
-
   try {
     firebase
-      .database()
-      .ref(`rooms/${room.id}/listeners/${user.details.id}`)
-      .remove();
+      .firestore()
+      .collection('rooms')
+      .doc(room.id)
+      .collection('listeners')
+      .doc(user.id)
+      .delete();
 
-    firebase.database().ref(`users/${user.details.id}/room`).remove();
+    firebase.analytics().logEvent(Events.LeaveRoom, {
+      id: user.id,
+      displayName: user.displayName,
+      service: user.service,
+    });
+
+    firebase.firestore().collection('users').doc(user.id).update({
+      currentRoomID: null,
+    });
   } catch (error) {
     console.error(error);
   }

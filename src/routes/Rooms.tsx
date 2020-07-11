@@ -18,8 +18,8 @@ import {
   spotifyApiState,
   userInformationState,
 } from '../state';
-import { RoomInformation } from '../state/roomInformation';
 import JoinPrivateRoom from '../components/JoinPrivateRoom';
+import { RoomInformation } from '../models/RoomInformation';
 
 interface Props {}
 
@@ -64,8 +64,8 @@ export const Rooms = () => {
   let publicTrackCount = 0;
   for (const room of rooms) {
     if (user) {
-      if (room.owner && user.details) {
-        if (room.owner.id === user.details.id) {
+      if (room.owner && user) {
+        if (room.owner.id === user.id) {
           return <Redirect to={`rooms/${room.id}`} />;
         }
       }

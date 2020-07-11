@@ -44,7 +44,7 @@ const Layout = ({ children, title, centered, boxed, maxW }: Props) => {
                 {children}
               </Stack>
             ) : (
-              { children }
+              children
             )}
           </Stack>
         ) : (

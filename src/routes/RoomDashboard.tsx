@@ -12,16 +12,15 @@ import {
   TabPanels,
   Tabs,
   Tooltip,
+  Box,
 } from '@chakra-ui/core';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userInformationState } from '../state';
-import SongSearchDrawer from '../components/Dashboard/Drawers/SongSearchDrawer';
-import DeviceSelectDrawer from '../components/Dashboard/Drawers/DeviceSelectDrawer';
-import PlaybackControlDrawer from '../components/Dashboard/Drawers/PlaybackControlDrawer';
 import ChatComponent from '../components/Dashboard/Tabs/ChatComponent';
 import useBackgroundColor from '../hooks/useBackgroundColor';
 import PlaybackHeader from '../components/PlaybackHeader/PlaybackHeader';
 import { displayedModalState } from '../state/displayedModal';
+import DashboardBottomBar from '../components/Dashboard/DashboardBottomBar';
 
 interface Props {}
 
@@ -83,33 +82,21 @@ const RoomDashboard = (props: Props) => {
               </Flex>
               <TabPanels flex={1}>
                 <TabPanel>
-                  <Button
-                    mt={2}
-                    variantColor='green'
-                    leftIcon={() => <Icon name='add' />}
-                    onClick={() => setDisplayedModal('queue-song')}
-                  >
-                    <Text ml={2}>Queue Song</Text>
-                  </Button>
+                  <Box></Box>
                 </TabPanel>
                 <TabPanel>
                   <Flex align='center'>
                     <Avatar
                       size='sm'
-                      name={
-                        userInformation?.details.display_name || 'Guest User'
-                      }
+                      name={userInformation?.displayName || 'Guest User'}
                       src={
-                        userInformation?.details.images
-                          ? userInformation?.details.images[0]
-                            ? userInformation?.details.images[0].url ||
-                              undefined
-                            : undefined
+                        userInformation
+                          ? userInformation.image.src || undefined
                           : undefined
                       }
                     />
                     <Text ml={2}>
-                      {userInformation?.details.display_name || 'Guest User'}
+                      {userInformation?.displayName || 'Guest User'}
                     </Text>
                   </Flex>
                 </TabPanel>
@@ -120,14 +107,12 @@ const RoomDashboard = (props: Props) => {
                   <ChatComponent type='panel' />
                 </TabPanel>
               </TabPanels>
+              <DashboardBottomBar />
             </Tabs>
           </Flex>
           <ChatComponent type='full' />
         </Grid>
       </Flex>
-      <SongSearchDrawer />
-      <DeviceSelectDrawer />
-      <PlaybackControlDrawer />
     </>
   );
 };

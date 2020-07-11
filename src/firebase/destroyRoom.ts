@@ -1,22 +1,18 @@
 import firebase from '.';
-import { UserInformation } from '../state/userInformation';
-import { RoomInformation } from '../state/roomInformation';
+import { RoomInformation } from '../models/RoomInformation';
+import { UserInformation } from '../models/UserInformation';
+import Events from './Events';
 
 const destroyRoom = async (room: RoomInformation, user: UserInformation) => {
   if (!room || !user) return;
 
   try {
-    firebase
-      .database()
-      .ref('rooms/' + room.id)
-      .remove();
+    firebase.firestore().collection('rooms').doc(room.id).delete();
+    firebase.analytics().logEvent(Events.DestroyRoom, room);
 
-    firebase
-      .database()
-      .ref('users/' + user?.details.id)
-      .update({
-        room: null,
-      });
+    firebase.firestore().collection('users').doc(user.id).update({
+      currentRoomID: null,
+    });
   } catch (error) {
     console.error(error);
   }

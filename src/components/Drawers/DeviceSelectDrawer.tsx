@@ -20,8 +20,8 @@ import {
   Link,
 } from '@chakra-ui/core';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { spotifyApiState, accessTokenState } from '../../../state';
-import RadioOption from '../../RadioOption';
+import { spotifyApiState, accessTokenState } from '../../state';
+import RadioOption from '../RadioOption';
 import {
   FiRefreshCcw,
   FiGlobe,
@@ -29,7 +29,7 @@ import {
   FiMonitor,
   FiSmartphone,
 } from 'react-icons/fi';
-import { displayedModalState } from '../../../state/displayedModal';
+import { displayedModalState } from '../../state/displayedModal';
 
 interface Props {}
 

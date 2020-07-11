@@ -19,7 +19,7 @@ const usePlaybackMonitor = (shouldStartCheckingPlayback: boolean) => {
 
   useEffect(() => {
     const getMyCurrentPlaybackState = async () => {
-      // console.log('Checking playback state...');
+      console.log('Checking playback state...');
       try {
         spotifyAPI.setAccessToken(accessToken);
         const response = await spotifyAPI.getMyCurrentPlaybackState();

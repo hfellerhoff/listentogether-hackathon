@@ -12,7 +12,7 @@ import {
   Box,
 } from '@chakra-ui/core';
 import { Link } from 'react-router-dom';
-import { RoomInformation } from '../state/roomInformation';
+import { RoomInformation } from '../models/RoomInformation';
 
 interface Props {
   room: RoomInformation;
@@ -28,7 +28,7 @@ const RoomSongDisplay = ({ room, track }: Props) => {
             <Image src={track.album.images[0].url} w='100%' h='100%' />
           </Box>
           <Stack textAlign='left' width='100%' ml={4} flex={1}>
-            <Heading size='md'>{room.owner.name}'s Room</Heading>
+            <Heading size='md'>{room.name}</Heading>
             <Text>
               {track.name} •{' '}
               {track.artists.map(
@@ -41,7 +41,7 @@ const RoomSongDisplay = ({ room, track }: Props) => {
             <Slider
               min={0}
               max={track.duration_ms / 1000}
-              value={room.song.progress / 1000} // Date.now() - document.song.addedAt +
+              value={room.currentSong ? room.currentSong.progress / 1000 : 0} // Date.now() - document.song.addedAt +
             >
               <SliderTrack />
               <SliderFilledTrack />

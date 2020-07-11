@@ -13,10 +13,20 @@ import {
   Grid,
 } from '@chakra-ui/core';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { spotifyApiState, accessTokenState } from '../../../state';
-import DashboardSongDisplay from '../DashboardSongDisplay';
-import useWindowDimensions from '../../../hooks/useWindowDimensions';
-import { displayedModalState } from '../../../state/displayedModal';
+import {
+  spotifyApiState,
+  accessTokenState,
+  userInformationState,
+} from '../../state';
+import DashboardSongDisplay from '../Dashboard/DashboardSongDisplay';
+import useWindowDimensions from '../../hooks/useWindowDimensions';
+import { displayedModalState } from '../../state/displayedModal';
+import firebase from '../../firebase';
+import Events from '../../firebase/Events';
+import { roomInformationState } from '../../state/roomInformation';
+import queueSong from '../../firebase/queueSong';
+import { SongInformation } from '../../models/SongInformation';
+import { Service } from '../../models/Service';
 
 interface Props {}
 
@@ -47,6 +57,8 @@ const SongSearchDrawer = (props: Props) => {
 
   const spotifyAPI = useRecoilValue(spotifyApiState);
   const accessToken = useRecoilValue(accessTokenState);
+  const userInformation = useRecoilValue(userInformationState);
+  const roomInformation = useRecoilValue(roomInformationState);
   const [displayedModal, setDisplayedModal] = useRecoilState(
     displayedModalState
   );
@@ -58,16 +70,62 @@ const SongSearchDrawer = (props: Props) => {
   >([]);
 
   const queueTrack = async (track: SpotifyApi.TrackObjectFull) => {
-    if (spotifyAPI) {
+    if (spotifyAPI && userInformation) {
       spotifyAPI.setAccessToken(accessToken);
       const devicesResponse = await spotifyAPI.getMyDevices();
       console.log(devicesResponse);
 
-      await spotifyAPI.play({
-        uris: [track.uri],
-        device_id: devicesResponse.devices[0].id || '',
-      });
+      const userRoom = {
+        service: 'spotify' as Service,
+        id: userInformation.id,
+        displayName: userInformation.displayName,
+        image: {
+          src: userInformation.image.src,
+        },
+      };
 
+      const song: SongInformation = {
+        name: track.name,
+        artists: track.artists.map((artist) => artist.name),
+        timestampUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        isPlaying: true,
+        progress: 0,
+        duration: track.duration_ms,
+        album: {
+          name: track.album.name,
+          image: {
+            src: track.album.images[0].url,
+          },
+        },
+        spotify: {
+          id: track.id,
+          uri: track.uri,
+        },
+        userWhoQueued: userRoom,
+      };
+
+      if (roomInformation && userInformation) {
+        queueSong(roomInformation, song);
+      }
+
+      if (devicesResponse.devices.length === 0) {
+        setDisplayedModal('device-select');
+        return;
+      }
+
+      // await spotifyAPI.play({
+      //   uris: [track.uri],
+      //   device_id: devicesResponse.devices[0].id || '',
+      // });
+
+      firebase.analytics().logEvent(Events.QueueSong, {
+        spotify: {
+          uri: track.uri,
+          id: track.id,
+          name: track.name,
+        },
+      });
+      setSearchQuery('');
       setDisplayedModal(null);
     }
   };

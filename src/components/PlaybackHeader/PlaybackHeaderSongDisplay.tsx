@@ -1,25 +1,25 @@
 import React from 'react';
 import { Box, Button, Text } from '@chakra-ui/core';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { playbackInformationState } from '../../state';
 import DashboardSongDisplay from '../Dashboard/DashboardSongDisplay';
 import { displayedModalState } from '../../state/displayedModal';
+import { roomInformationState } from '../../state/roomInformation';
 
 interface Props {}
 
 const PlaybackHeaderSongDisplay = (props: Props) => {
-  const playbackInformation = useRecoilValue(playbackInformationState);
+  const roomInformation = useRecoilValue(roomInformationState);
   const setDisplayedModal = useSetRecoilState(displayedModalState);
 
   return (
     <Box>
-      {playbackInformation ? (
-        playbackInformation.item ? (
+      {roomInformation ? (
+        roomInformation.currentSong ? (
           <DashboardSongDisplay
-            title={playbackInformation.item.name}
-            artist={playbackInformation.item.artists[0].name}
-            album={playbackInformation.item.album.name}
-            src={playbackInformation.item.album.images[0].url}
+            title={roomInformation.currentSong.name}
+            artist={roomInformation.currentSong.artists[0]}
+            album={roomInformation.currentSong.album.name}
+            src={roomInformation.currentSong.album.image.src}
           />
         ) : (
           <Button
@@ -31,13 +31,9 @@ const PlaybackHeaderSongDisplay = (props: Props) => {
           </Button>
         )
       ) : (
-        <Button
-          leftIcon='add'
-          variant='ghost'
-          onClick={() => setDisplayedModal('queue-song')}
-        >
-          <Text ml={1}>Pick a song to play!</Text>
-        </Button>
+        <Text ml={[0, 2, 4, 8]} fontWeight={500} fontSize={18}>
+          Join a room to start listening to music!
+        </Text>
       )}
     </Box>
   );

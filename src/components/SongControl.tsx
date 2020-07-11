@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Flex, Spinner } from '@chakra-ui/core';
 import SongControlButton from './SongControlButton';
-import { FiPause, FiSkipBack, FiSkipForward, FiPlay } from 'react-icons/fi';
+import {
+  FiPause,
+  FiSkipBack,
+  FiSkipForward,
+  FiPlay,
+  FiLink2,
+} from 'react-icons/fi';
 import { useRecoilValue } from 'recoil';
 import { spotifyApiState } from '../state';
 
 interface Props {
   isPlaying: boolean;
   isOwner: boolean;
+  isDisabled?: boolean;
 }
 
-const SongControl = ({ isPlaying, isOwner }: Props) => {
+const SongControl = ({ isPlaying, isOwner, isDisabled }: Props) => {
   const spotifyApi = useRecoilValue(spotifyApiState);
   const [changeToIsPlaying, setChangeToIsPlaying] = useState(true);
 
@@ -21,13 +28,17 @@ const SongControl = ({ isPlaying, isOwner }: Props) => {
   return (
     <Flex height={12} align='center' justify='center'>
       <SongControlButton
-        onClick={() => spotifyApi.skipToPrevious()}
-        isDisabled={!isOwner}
+        label='Sync Playback'
+        onClick={() => {}}
+        isDisabled={isDisabled || !isOwner}
       >
-        <FiSkipBack fontSize='1.5em' />
+        <FiLink2 fontSize='1.5em' />
       </SongControlButton>
       <SongControlButton
-        isDisabled={isOwner ? changeToIsPlaying !== isPlaying : true}
+        label={isPlaying ? 'Pause Playback' : 'Resume Playback'}
+        isDisabled={
+          isDisabled || isOwner ? changeToIsPlaying !== isPlaying : true
+        }
         onClick={() => {
           setChangeToIsPlaying(!isPlaying);
           isPlaying ? spotifyApi.pause() : spotifyApi.play();
@@ -44,8 +55,9 @@ const SongControl = ({ isPlaying, isOwner }: Props) => {
         )}
       </SongControlButton>
       <SongControlButton
+        label='Skip Song'
         onClick={() => spotifyApi.skipToNext()}
-        isDisabled={!isOwner}
+        isDisabled={isDisabled || !isOwner}
       >
         <FiSkipForward fontSize='1.5em' />
       </SongControlButton>

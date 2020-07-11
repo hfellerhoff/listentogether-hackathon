@@ -1,10 +1,11 @@
 import firebase from '.';
 import { UserInformationState } from '../state/userInformation';
-import { User, RoomInformationState } from '../state/roomInformation';
+import { RoomInformationState } from '../state/roomInformation';
+import { UserInformationRoom } from '../models/UserInformation';
 
 const transferRoomOwnership = async (
   room: RoomInformationState,
-  previousOwner: User,
+  previousOwner: UserInformationRoom,
   newOwner: UserInformationState
 ) => {
   console.log('TODO: Room owner transfer function.');

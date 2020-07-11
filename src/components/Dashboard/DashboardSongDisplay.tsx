@@ -10,6 +10,8 @@ interface Props {
     length: number;
   };
   src?: string;
+  standalone?: boolean;
+  imageRef?: React.MutableRefObject<HTMLImageElement | undefined>;
 }
 
 const DashboardSongDisplay = ({
@@ -18,7 +20,23 @@ const DashboardSongDisplay = ({
   album,
   playback,
   src,
+  standalone,
+  imageRef,
 }: Props) => {
+  if (standalone && src)
+    return (
+      <Box>
+        <Flex direction='column' align='center' justify='space-between'>
+          <Image src={src} height={32} width={32} ref={imageRef} />
+          <Box>
+            <Heading size='sm' mt={4}>
+              {title}
+            </Heading>
+            <Text>{artist}</Text>
+          </Box>
+        </Flex>
+      </Box>
+    );
   return (
     <Box>
       <Flex>

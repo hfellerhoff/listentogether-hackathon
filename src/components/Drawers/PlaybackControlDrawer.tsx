@@ -13,10 +13,10 @@ import {
   Box,
 } from '@chakra-ui/core';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { userInformationState } from '../../../state';
-import DashboardSongControls from '../DashboardSongControls';
-import VolumeAndDeviceControl from '../VolumeAndDeviceControl';
-import { displayedModalState } from '../../../state/displayedModal';
+import { userInformationState } from '../../state';
+import DashboardSongControls from '../Dashboard/DashboardSongControls';
+import VolumeAndDeviceControl from '../Dashboard/VolumeAndDeviceControl';
+import { displayedModalState } from '../../state/displayedModal';
 
 interface Props {}
 
@@ -50,12 +50,10 @@ const PlaybackControlDrawer = (props: Props) => {
               <Button variant='ghost' rightIcon='chevron-down'>
                 <Avatar
                   size='sm'
-                  name={userInformation?.details.display_name || 'Guest User'}
+                  name={userInformation?.displayName || 'Guest User'}
                   src={
-                    userInformation?.details.images
-                      ? userInformation?.details.images[0]
-                        ? userInformation?.details.images[0].url || undefined
-                        : undefined
+                    userInformation
+                      ? userInformation.image.src || undefined
                       : undefined
                   }
                 />

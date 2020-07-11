@@ -1,4 +1,4 @@
-export { ShareSong } from './ShareSong';
+export { CreateRoom } from './CreateRoom';
 export { SearchOrShare } from './SearchOrShare';
 export { ChooseSong } from './ChooseSong';
 export { LoginToSpotify } from './LoginToSpotify';

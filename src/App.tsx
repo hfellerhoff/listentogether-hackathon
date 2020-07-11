@@ -8,7 +8,7 @@ import usePlaybackMonitor from './hooks/usePlaybackMonitor';
 import {
   SearchOrShare,
   ChooseSong,
-  ShareSong,
+  CreateRoom,
   Room,
   Rooms,
   LandingPage,
@@ -23,40 +23,29 @@ import InstructionFAB from './components/InstructionFAB';
 import RoomDashboard from './routes/RoomDashboard';
 import { Box } from '@chakra-ui/core';
 import useSpotifyWebPlayback from './hooks/useSpotifyWebPlayback';
+import Home from './routes/Home';
+import SongSearchDrawer from './components/Drawers/SongSearchDrawer';
+import DeviceSelectDrawer from './components/Drawers/DeviceSelectDrawer';
+import PlaybackControlDrawer from './components/Drawers/PlaybackControlDrawer';
+import useRoomMonitor from './hooks/useRoomMonitor';
 
 const App = () => {
   const params = getHashParams() as { access_token: string };
-  const history = useHistory();
-
   const [isCheckingPlayback, setIsCheckingPlayback] = useState(true);
-
-  const spotifyAPI = useRecoilValue(spotifyApiState);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
 
-  const songInformation = usePlaybackMonitor(isCheckingPlayback);
   useUserMonitor();
+  useRoomMonitor();
   useSpotifyWebPlayback();
 
   if (params.access_token && !accessToken) setAccessToken(params.access_token);
-
-  const handleCreateRoom = async (isPublic: boolean) => {
-    if (songInformation && accessToken) {
-      const id = await createRoom(
-        spotifyAPI,
-        accessToken,
-        songInformation as SpotifyApi.CurrentPlaybackResponse,
-        isPublic
-      );
-      history.push(`/rooms/${id}`);
-    }
-  };
 
   return (
     <>
       <Switch>
         <Route exact path='/'>
           {accessToken ? (
-            <Redirect to='/dev' /> // search-or-share
+            <Redirect to='/dashboard' />
           ) : (
             <>
               <RepeatedBackgroundLanding />
@@ -67,19 +56,24 @@ const App = () => {
             </>
           )}
         </Route>
-        <Route path='/dev'>
-          <Layout title='Listen'>
-            <RoomDashboard />
+        <Route path='/create'>
+          <RepeatedBackgroundLanding />
+          <RouteToHome />
+          <ToggleColorMode />
+          <Layout title='Create Room' centered boxed maxW={500}>
+            <CreateRoom />
           </Layout>
         </Route>
-
         {accessToken ? (
           <>
             <Box>
-              <RepeatedBackground />
-              <RouteToHome />
-              <ToggleColorMode />
               <Switch>
+                <Route path='/dashboard'>
+                  <RepeatedBackgroundLanding />
+                  <Layout title='Home'>
+                    <Home />
+                  </Layout>
+                </Route>
                 <Route path='/search-or-share'>
                   <RepeatedBackground />
                   <RouteToHome />
@@ -88,15 +82,11 @@ const App = () => {
                     <SearchOrShare />
                   </Layout>
                 </Route>
+
                 <Route path='/rooms/:roomID'>
-                  <RepeatedBackground />
-                  <RouteToHome />
-                  <ToggleColorMode />
-                  <InstructionFAB />
-                  <Room
-                    checkingPlayback={isCheckingPlayback}
-                    setShouldCheckPlayback={setIsCheckingPlayback}
-                  />
+                  <Layout title='Listen'>
+                    <RoomDashboard />
+                  </Layout>
                 </Route>
                 <Route path='/rooms'>
                   <RepeatedBackground />
@@ -124,7 +114,7 @@ const App = () => {
                     </>
                   )}
                 </Route>
-                <Route path='/share'>
+                {/* <Route path='/share'>
                   <RepeatedBackground />
                   <RouteToHome />
                   <ToggleColorMode />
@@ -134,9 +124,12 @@ const App = () => {
                       songInformation={songInformation}
                     />
                   </Layout>
-                </Route>
+                </Route> */}
               </Switch>
             </Box>
+            <SongSearchDrawer />
+            <DeviceSelectDrawer />
+            <PlaybackControlDrawer />
           </>
         ) : (
           <Redirect to='/' />
