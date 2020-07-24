@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
-import { accessTokenState } from '../state';
+import { accessTokenState } from '../state/accessToken';
 
 const useSpotifyWebPlayback = () => {
   const accessToken = useRecoilValue(accessTokenState);

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Grid, Box, Flex, Button, Avatar, Tooltip } from '@chakra-ui/core';
-import DashboardSongControls from '../Dashboard/DashboardSongControls';
-import VolumeAndDeviceControl from '../Dashboard/VolumeAndDeviceControl';
-import { FiMoreVertical } from 'react-icons/fi';
+import DashboardSongControls from '../Room/DashboardSongControls';
+import VolumeAndDeviceControl from '../Room/VolumeAndDeviceControl';
+import { FiMoreVertical, FiMusic } from 'react-icons/fi';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { userInformationState } from '../../state';
+import { userInformationState } from '../../state/userInformation';
 import useBackgroundColor from '../../hooks/useBackgroundColor';
 import ToggleColorMode from './ToggleColorMode';
 import { displayedModalState } from '../../state/displayedModal';
@@ -26,7 +26,7 @@ const PlaybackHeader = ({ placement, isHome }: Props) => {
 
   return (
     <>
-      <Box height={24} />
+      <Box height={24} display={isHome ? 'static' : 'none'} />
       <Grid
         bg={foregroundColor}
         gridTemplateColumns={[
@@ -105,11 +105,8 @@ const PlaybackHeader = ({ placement, isHome }: Props) => {
             hasArrow
             placement='bottom-end'
           >
-            <Button
-              variant='ghost'
-              onClick={() => setDisplayedModal('playback-control')}
-            >
-              <FiMoreVertical fontSize={20} />
+            <Button onClick={() => setDisplayedModal('playback-control')}>
+              <FiMusic fontSize={20} />
             </Button>
           </Tooltip>
         </Flex>

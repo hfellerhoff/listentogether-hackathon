@@ -38,7 +38,7 @@ const Layout = ({ children, title, centered, boxed, maxW }: Props) => {
             {boxed ? (
               <Stack
                 background={colorMode === 'light' ? '#ffffff' : '#1a202c'}
-                padding={16}
+                padding={[8, 8, 16, 16]}
                 boxShadow='0px 8px 10px 5px rgba(0, 0, 0, 0.1)'
               >
                 {children}

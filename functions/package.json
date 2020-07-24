@@ -7,10 +7,12 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
+    "deploy:app": "firebase deploy --only functions:app",
+    "deploy:onUserDisconnect": "firebase deploy --only functions:onUserDisconnect",
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "8"
+    "node": "10"
   },
   "main": "lib/index.js",
   "dependencies": {

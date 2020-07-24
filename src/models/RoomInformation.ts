@@ -1,6 +1,5 @@
 import { SongInformation } from './SongInformation';
 import { UserInformationRoom } from './UserInformation';
-import { ChatMessage } from './ChatMessage';
 
 export type RoomInformation = {
   id: string;
@@ -8,8 +7,8 @@ export type RoomInformation = {
   isPublic: boolean;
   currentSong: SongInformation | null;
   owner: UserInformationRoom;
-  listeners: {
-    [id: string]: UserInformationRoom;
+  count: {
+    listeners: number;
+    favorites: number;
   };
-  recentMessages: ChatMessage[];
 };

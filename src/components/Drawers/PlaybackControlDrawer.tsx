@@ -13,10 +13,10 @@ import {
   Box,
 } from '@chakra-ui/core';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { userInformationState } from '../../state';
-import DashboardSongControls from '../Dashboard/DashboardSongControls';
-import VolumeAndDeviceControl from '../Dashboard/VolumeAndDeviceControl';
+import DashboardSongControls from '../Room/DashboardSongControls';
+import VolumeAndDeviceControl from '../Room/VolumeAndDeviceControl';
 import { displayedModalState } from '../../state/displayedModal';
+import { userInformationState } from '../../state/userInformation';
 
 interface Props {}
 

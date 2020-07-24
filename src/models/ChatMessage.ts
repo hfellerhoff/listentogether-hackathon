@@ -11,4 +11,5 @@ export type ChatMessage = {
   type: ChatMessageType;
   content: string;
   user: UserInformationRoom;
+  timestamp: firebase.firestore.FieldValue;
 };

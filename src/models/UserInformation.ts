@@ -11,4 +11,5 @@ export type UserInformationRoom = {
 
 export interface UserInformation extends UserInformationRoom {
   currentRoomID: string | null;
+  favoritedRoomIDs: string[];
 }

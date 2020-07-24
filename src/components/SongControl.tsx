@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Flex, Spinner } from '@chakra-ui/core';
 import SongControlButton from './SongControlButton';
-import {
-  FiPause,
-  FiSkipBack,
-  FiSkipForward,
-  FiPlay,
-  FiLink2,
-} from 'react-icons/fi';
+import { FiPause, FiSkipForward, FiPlay, FiLink2 } from 'react-icons/fi';
 import { useRecoilValue } from 'recoil';
-import { spotifyApiState } from '../state';
+import { spotifyApiState } from '../state/spotifyAPI';
 
 interface Props {
   isPlaying: boolean;

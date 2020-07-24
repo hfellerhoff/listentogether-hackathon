@@ -1,37 +1,27 @@
-import React, { useState } from 'react';
-import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
+import React from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import Layout from './components/layout';
-import RepeatedBackground from './components/RepeatedBackground';
 import getHashParams from './util/getHashParams';
 import ToggleColorMode from './components/ToggleColorMode';
-import usePlaybackMonitor from './hooks/usePlaybackMonitor';
-import {
-  SearchOrShare,
-  ChooseSong,
-  CreateRoom,
-  Room,
-  Rooms,
-  LandingPage,
-} from './routes';
-import createRoom from './firebase/createRoom';
 import RouteToHome from './components/RouteToHome';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { spotifyApiState, accessTokenState } from './state';
-import useUserMonitor from './hooks/useUserMonitor';
+import { useRecoilState } from 'recoil';
+import { accessTokenState } from './state/accessToken';
+import useUserMonitor from './hooks/monitors/useUserMonitor';
 import RepeatedBackgroundLanding from './components/RepeatedBackgroundLanding';
-import InstructionFAB from './components/InstructionFAB';
-import RoomDashboard from './routes/RoomDashboard';
 import { Box } from '@chakra-ui/core';
 import useSpotifyWebPlayback from './hooks/useSpotifyWebPlayback';
-import Home from './routes/Home';
 import SongSearchDrawer from './components/Drawers/SongSearchDrawer';
 import DeviceSelectDrawer from './components/Drawers/DeviceSelectDrawer';
 import PlaybackControlDrawer from './components/Drawers/PlaybackControlDrawer';
-import useRoomMonitor from './hooks/useRoomMonitor';
+import useRoomMonitor from './hooks/monitors/useRoomMonitor';
+import LandingPage from './routes/LandingPage';
+import Dashboard from './routes/dashboard/Dashboard';
+import Room from './routes/rooms/Room';
+import CreateRoom from './routes/rooms/Create';
+import Beta from './routes/beta/Beta';
 
 const App = () => {
   const params = getHashParams() as { access_token: string };
-  const [isCheckingPlayback, setIsCheckingPlayback] = useState(true);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
 
   useUserMonitor();
@@ -50,81 +40,41 @@ const App = () => {
             <>
               <RepeatedBackgroundLanding />
               <ToggleColorMode />
-              <Layout title='Home'>
+              <Layout title=''>
                 <LandingPage />
               </Layout>
             </>
           )}
         </Route>
-        <Route path='/create'>
+        <Route path='/beta'>
           <RepeatedBackgroundLanding />
-          <RouteToHome />
           <ToggleColorMode />
-          <Layout title='Create Room' centered boxed maxW={500}>
-            <CreateRoom />
+          <Layout title='Coming Soon' maxW={1000}>
+            <Beta />
           </Layout>
         </Route>
         {accessToken ? (
           <>
             <Box>
+              <RepeatedBackgroundLanding />
               <Switch>
                 <Route path='/dashboard'>
-                  <RepeatedBackgroundLanding />
-                  <Layout title='Home'>
-                    <Home />
+                  <Layout title='Dashboard'>
+                    <Dashboard />
                   </Layout>
                 </Route>
-                <Route path='/search-or-share'>
-                  <RepeatedBackground />
+                <Route path='/rooms/create'>
                   <RouteToHome />
                   <ToggleColorMode />
-                  <Layout title='Search or Share' centered boxed maxW={550}>
-                    <SearchOrShare />
+                  <Layout title='Create Room' centered boxed maxW={500}>
+                    <CreateRoom />
                   </Layout>
                 </Route>
-
                 <Route path='/rooms/:roomID'>
                   <Layout title='Listen'>
-                    <RoomDashboard />
+                    <Room />
                   </Layout>
                 </Route>
-                <Route path='/rooms'>
-                  <RepeatedBackground />
-                  <RouteToHome />
-                  <ToggleColorMode />
-                  <Layout title='Rooms' centered boxed maxW={700}>
-                    <Rooms />
-                  </Layout>
-                </Route>
-                <Route path='/choose-song'>
-                  {isCheckingPlayback ? (
-                    <Redirect to='/share' />
-                  ) : (
-                    <>
-                      <RepeatedBackground />
-                      <RouteToHome />
-                      <ToggleColorMode />
-                      <Layout title='Choose Song' centered boxed maxW={550}>
-                        <ChooseSong
-                          checkPlayback={() => {
-                            setIsCheckingPlayback(true);
-                          }}
-                        />
-                      </Layout>
-                    </>
-                  )}
-                </Route>
-                {/* <Route path='/share'>
-                  <RepeatedBackground />
-                  <RouteToHome />
-                  <ToggleColorMode />
-                  <Layout title='Share Song' centered boxed maxW={550}>
-                    <ShareSong
-                      createRoom={handleCreateRoom}
-                      songInformation={songInformation}
-                    />
-                  </Layout>
-                </Route> */}
               </Switch>
             </Box>
             <SongSearchDrawer />

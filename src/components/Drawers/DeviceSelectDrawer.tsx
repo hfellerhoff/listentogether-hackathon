@@ -20,7 +20,6 @@ import {
   Link,
 } from '@chakra-ui/core';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { spotifyApiState, accessTokenState } from '../../state';
 import RadioOption from '../RadioOption';
 import {
   FiRefreshCcw,
@@ -30,6 +29,8 @@ import {
   FiSmartphone,
 } from 'react-icons/fi';
 import { displayedModalState } from '../../state/displayedModal';
+import { spotifyApiState } from '../../state/spotifyAPI';
+import { accessTokenState } from '../../state/accessToken';
 
 interface Props {}
 

@@ -13,20 +13,18 @@ import {
   Grid,
 } from '@chakra-ui/core';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import {
-  spotifyApiState,
-  accessTokenState,
-  userInformationState,
-} from '../../state';
-import DashboardSongDisplay from '../Dashboard/DashboardSongDisplay';
+import DashboardSongDisplay from '../Room/DashboardSongDisplay';
 import useWindowDimensions from '../../hooks/useWindowDimensions';
 import { displayedModalState } from '../../state/displayedModal';
-import firebase from '../../firebase';
-import Events from '../../firebase/Events';
+import firebase from '../../lib/firebase';
+import Events from '../../services/analytics/Events';
 import { roomInformationState } from '../../state/roomInformation';
-import queueSong from '../../firebase/queueSong';
+import queueSong from '../../services/queueSong';
 import { SongInformation } from '../../models/SongInformation';
 import { Service } from '../../models/Service';
+import { spotifyApiState } from '../../state/spotifyAPI';
+import { accessTokenState } from '../../state/accessToken';
+import { userInformationState } from '../../state/userInformation';
 
 interface Props {}
 

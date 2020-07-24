@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, Text } from '@chakra-ui/core';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import DashboardSongDisplay from '../Dashboard/DashboardSongDisplay';
+import DashboardSongDisplay from '../Room/DashboardSongDisplay';
 import { displayedModalState } from '../../state/displayedModal';
 import { roomInformationState } from '../../state/roomInformation';
 

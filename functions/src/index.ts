@@ -11,6 +11,7 @@
 */
 
 import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 import * as express from 'express';
 import * as request from 'request';
 import * as cors from 'cors';
@@ -19,6 +20,9 @@ import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import generateRandomString from './util/generateRandomString';
 dotenv.config();
+
+admin.initializeApp();
+const firestore = admin.firestore();
 
 // This solution is incredibly temporary and hacky:
 // Firebase doesn't support process.env.NODE_ENV, so
@@ -37,8 +41,6 @@ const callbackURI = isDevelopment
 
 const stateKey = 'spotify_auth_state';
 
-// I don't believe the "streaming" permission is necessary, but I left it in as
-// I was debating testing out the beta of Spotify's Web Playback API
 const scope =
   'user-read-private user-read-email user-read-playback-state user-modify-playback-state streaming';
 
@@ -127,3 +129,37 @@ app.get('/callback', function (req, res) {
 
 // Specific to Firebase – I don't believe this is needed for a standalone Node server
 exports.app = functions.https.onRequest(app);
+
+exports.onUserDisconnect = functions.database
+  .ref('connected/{userID}')
+  .onUpdate(async (snapshot, context) => {
+    const before = snapshot.before.val();
+    const userID = context.params.userID;
+
+    if (before) {
+      const userRef = firestore.collection('users').doc(userID);
+
+      const userDocument = await userRef.get();
+      const user = userDocument.data();
+
+      if (!user) return null;
+      if (!user.currentRoomID) return null; // No room to leave
+
+      const roomRef = firestore.collection('rooms').doc(user.currentRoomID);
+      const listenersRef = roomRef.collection('details').doc('listeners');
+
+      await roomRef.update({
+        'count.listeners': admin.firestore.FieldValue.increment(-1),
+      });
+
+      await listenersRef.update({
+        [`listeners.${userID}`]: admin.firestore.FieldValue.delete(),
+      });
+
+      return userRef.update({
+        currentRoomID: null,
+      });
+    }
+
+    return null;
+  });
